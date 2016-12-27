@@ -1,6 +1,6 @@
 data_source/**/*.xml
 .DS_Store
-
+.idea/*
 
 
 

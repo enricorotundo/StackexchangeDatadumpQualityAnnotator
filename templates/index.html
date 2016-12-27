@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta charset="UTF-8">
+    <title>{{ question_id }}</title>
+</head>
+
+
+<body>
+    <form action="/" method="post">{% csrf_token %}
+
+    {% autoescape off %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <small><em>question_id: {{ data.question_id }}</em></small>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="/">Skip to next question</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="container">
+        <h1>{{ data.question_title }}</h1>
+        <p>{{ data.question_body }}</p>
+        <p>
+            <input id="{{ data.question_id }}" type="radio" value="0" name="{{ data.question_id }}_quality" > Low
+            <input id="{{ data.question_id }}" type="radio" value="1" name="{{ data.question_id }}_quality" > Medium
+            <input id="{{ data.question_id }}" type="radio" value="2" name="{{ data.question_id }}_quality" > High
+        </p>
+    </div>
+
+
+    <div class="container">
+        <h3>Answers:</h3>
+    </div>
+
+    {% for answer in data.answers_list %}
+        <div class="container panel panel-default">
+            <p>
+                <small><em>answer_id: {{ answer.answer_id }}</em></small>
+            </p>
+            <p>{{ answer.answer_body | striptags }}</p>
+            <p>
+                <input id="{{ answer.answer_id }}" type="radio" value="0" name="{{ answer.answer_id }}_quality" > Low
+                <input id="{{ answer.answer_id }}" type="radio" value="1" name="{{ answer.answer_id }}_quality" > Medium
+                <input id="{{ answer.answer_id }}" type="radio" value="2" name="{{ answer.answer_id }}_quality" > High
+            </p>
+        </div>
+    {% endfor %}
+
+    {% endautoescape %}
+
+    <div class="container text-center">
+        <input type="submit" value="Submit" class="btn btn-primary btn-lg">
+    </div>
+
+    </form>
+
+    <footer>
+        <p></p>
+    </footer>
+
+</body>
+</html>
