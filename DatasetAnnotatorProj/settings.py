@@ -76,19 +76,33 @@ WSGI_APPLICATION = 'DatasetAnnotatorProj.wsgi.application'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'default': {},
+    'cooking': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'cooking_stackexchange_com',
-        #'NAME': 'travel_stackexchange_com',
-        #'NAME': 'webapps_stackexchange_com',
         'USER': 'root',
         'PASSWORD': 'root',
         'HOST': 'localhost',
         'PORT': '8889',
-        'OPTIONS': {
-        },
+    },
+    'travel': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'travel_stackexchange_com',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '8889',
+    },
+    'webapps': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'webapps_stackexchange_com',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '8889',
     }
 }
+
 
 
 # Password validation

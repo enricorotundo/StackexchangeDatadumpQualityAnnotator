@@ -31,9 +31,13 @@ def index(request):
 
     template = loader.get_template('index.html')
 
+    databases = ['cooking', 'travel', 'webapps']
+    choosen_db = choice(databases)
+
     # get all questions not yet annotated
     # assumes: if a question's annotated, then all the answers have been annotated al well
     all_questions_ids = Post.objects\
+        .using(choosen_db)\
         .filter(posttypeid=1)\
         .filter(annotatedquality=None)\
         .values_list('id', flat=True)
@@ -41,11 +45,12 @@ def index(request):
 
     # retrieve a random question
     question_id = choice(all_questions_ids)
-    question_obj = Post.objects.get(pk=question_id)
+    question_obj = Post.objects.using(choosen_db).get(pk=question_id)
 
 
     # retrieve its answers, sorted by date
-    all_answers_objs = Post.objects\
+    all_answers_objs = Post.objects \
+        .using(choosen_db)\
         .filter(parentid=question_id)\
         .order_by('creationdate')
 
@@ -59,6 +64,7 @@ def index(request):
 
     # fill in the context
     data = dict()
+    data['choosen_db'] = choosen_db
     data['question_id'] = question_id
     data['question_title'] = question_obj.title
     data['question_body'] = question_obj.body
