@@ -18,6 +18,7 @@
 
 <body>
     <form action="/" method="post">{% csrf_token %}
+    <input type="hidden" name="choosen_db" value="{{ data.choosen_db }}">
 
     {% autoescape off %}
     <div class="container">

@@ -11,18 +11,24 @@ def index(request):
     if request.method == 'POST':
         response = str(request.body)
         annotations = dict()
+        target_db = ""
+
         for field in response.split('&'):
             if '_quality' in field:
                 key = field.split('_')[0]
                 value = field.split('=')[1]
                 annotations[key] = int(value)
+            if 'choosen_db' in field:
+                target_db = field.split('=')[1]
 
         print annotations
 
         for post_id in annotations.keys():
-            post = Post.objects.get(pk=post_id)
+            post = Post.objects.using(target_db).get(pk=post_id)
             post.annotatedquality = annotations[post_id]
             post.save()
+            print str(target_db),
+            print ": ",
             print str(post.pk),
             print "annotated with",
             print str(annotations[post_id])
