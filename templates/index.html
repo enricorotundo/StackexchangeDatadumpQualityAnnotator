@@ -12,67 +12,39 @@
     <![endif]-->
 
     <meta charset="UTF-8">
-    <title>{{ question_id }}</title>
+    <title>Index</title>
 </head>
 
-
 <body>
-    <form action="/" method="post">{% csrf_token %}
-    <input type="hidden" name="choosen_db" value="{{ data.choosen_db }}">
 
-    {% autoescape off %}
-    <div class="container">
+
+
+<div class="container">
+
+        <h3>Shared questions:</h3>
         <div class="row">
             <div class="col-md-6">
-                <small><em>question_id: {{ data.question_id }}; db: {{ data.choosen_db }};</em></small>
-            </div>
-            <div class="col-md-6 text-right">
-                <a href="/">Skip this question</a>
+                <ul class="list-group">
+                    <li class="list-group-item" ><a href="/enrico/shared">Enrico</a> <span class="badge">welcome!</span></li>
+                    <li class="list-group-item" ><a href="/marit/shared">Marit</a> <span class="badge">welcome!</span></li>
+                    <li class="list-group-item" ><a href="/christine/shared">Christine</a> <span class="badge">welcome!</span></li>
+                    <li class="list-group-item" ><a href="/henrik/shared">Henrik</a> <span class="badge">welcome!</span></li>
+                </ul>
             </div>
         </div>
 
-    </div>
-
-    <div class="container">
-        <h1>{{ data.question_title }}</h1>
-        <p>{{ data.question_body }}</p>
-        <p>
-            <input id="{{ data.question_id }}" type="radio" value="0" name="{{ data.question_id }}_quality" > Low
-            <input id="{{ data.question_id }}" type="radio" value="1" name="{{ data.question_id }}_quality" > Medium
-            <input id="{{ data.question_id }}" type="radio" value="2" name="{{ data.question_id }}_quality" > High
-        </p>
-    </div>
-
-
-    <div class="container">
-        <h3>Answers:</h3>
-    </div>
-
-    {% for answer in data.answers_list %}
-        <div class="container panel panel-default">
-            <p>
-                <small><em>answer_id: {{ answer.answer_id }}</em></small>
-            </p>
-            <p>{{ answer.answer_body | striptags }}</p>
-            <p>
-                <input id="{{ answer.answer_id }}" type="radio" value="0" name="{{ answer.answer_id }}_quality" > Low
-                <input id="{{ answer.answer_id }}" type="radio" value="1" name="{{ answer.answer_id }}_quality" > Medium
-                <input id="{{ answer.answer_id }}" type="radio" value="2" name="{{ answer.answer_id }}_quality" > High
-            </p>
+        <h3>Random questions:</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="list-group">
+                    <li class="list-group-item" ><a href="/enrico">Enrico</a> <span class="badge">welcome!</span></li>
+                    <li class="list-group-item" ><a href="/marit">Marit</a> <span class="badge">welcome!</span></li>
+                    <li class="list-group-item" ><a href="/christine">Christine</a> <span class="badge">welcome!</span></li>
+                    <li class="list-group-item" ><a href="/henrik">Henrik</a> <span class="badge">welcome!</span></li>
+                </ul>
+            </div>
         </div>
-    {% endfor %}
-
-    {% endautoescape %}
-
-    <div class="container text-center">
-        <input type="submit" value="Submit" class="btn btn-primary btn-lg">
-    </div>
-
-    </form>
-
-    <footer>
-        <p></p>
-    </footer>
+</div>
 
 </body>
 </html>
