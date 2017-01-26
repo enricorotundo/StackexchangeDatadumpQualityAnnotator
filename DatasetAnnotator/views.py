@@ -71,7 +71,35 @@ def get_shared_questions():
 
 def index(request):
     template = loader.get_template('index.html')
-    return HttpResponse(template.render(request))
+    shared_questions = get_shared_questions()
+    data = dict()
+
+    data["shared_count_enrico"] = 0
+    data["shared_count_marit"] = 0
+    data["shared_count_christine"] = 0
+    data["shared_count_henrik"] = 0
+    data["count_enrico"] = 0
+    data["count_marit"] = 0
+    data["count_christine"] = 0
+    data["count_henrik"] = 0
+
+    # retrieve shared questions counting
+    for db_name in shared_questions:
+        data["shared_count_enrico"] += Posts.objects.using(db_name).filter(pk__in=shared_questions[db_name]).exclude(annotatedqualityenrico__isnull=True).count()
+        data["shared_count_marit"] += Posts.objects.using(db_name).filter(pk__in=shared_questions[db_name]).exclude(annotatedqualitymarit__isnull=True).count()
+        data["shared_count_christine"] += Posts.objects.using(db_name).filter(pk__in=shared_questions[db_name]).exclude(annotatedqualitychristine__isnull=True).count()
+        data["shared_count_henrik"] += Posts.objects.using(db_name).filter(pk__in=shared_questions[db_name]).exclude(annotatedqualityhenrik__isnull=True).count()
+
+        data["count_enrico"] += Posts.objects.using(db_name).filter(posttypeid=1).exclude(pk__in=shared_questions[db_name]).exclude(annotatedqualityenrico__isnull=True).count()
+        data["count_marit"] += Posts.objects.using(db_name).filter(posttypeid=1).exclude(pk__in=shared_questions[db_name]).exclude(annotatedqualitymarit__isnull=True).count()
+        data["count_christine"] += Posts.objects.using(db_name).filter(posttypeid=1).exclude(pk__in=shared_questions[db_name]).exclude(annotatedqualitychristine__isnull=True).count()
+        data["count_henrik"] += Posts.objects.using(db_name).filter(posttypeid=1).exclude(pk__in=shared_questions[db_name]).exclude(annotatedqualityhenrik__isnull=True).count()
+
+    context = {
+        'data' : data
+    }
+
+    return HttpResponse(template.render(context, request))
 
 def shared_list(request, annotator_name=None):
     template = loader.get_template('shared_questions.html')
@@ -142,7 +170,7 @@ def entry_point(request, annotator_name=None):
 Given annotator_name, db_name, question_id,
 it loads the question with all the answers and renders the page.
 """
-def annotation(request, annotator_name, db_name, question_id):
+def annotation(request, annotator_name, db_name, question_id, shared=None):
     print "Annotation for " + annotator_name + " " + db_name + "(" + str(question_id) + ")"
     template = loader.get_template('annotation.html')
 
@@ -201,6 +229,11 @@ def annotation(request, annotator_name, db_name, question_id):
     data['answers_list'] = all_answers_data
     data['annotator_name'] = annotator_name
 
+    #default redirect behaviour
+    data['submit_redirect'] = '/'
+    if shared != '':
+        data['submit_redirect'] = '/shared'
+
     context = {
         'data' : data
     }
@@ -218,6 +251,7 @@ def submit(request, annotator_name=None):
 
         annotator_name = request.POST['annotator_name']
         db_name = request.POST['db_name']
+        submit_redirect = request.POST['submit_redirect']
 
         # retrieve the available annotations
         annotations = dict()
@@ -245,4 +279,4 @@ def submit(request, annotator_name=None):
     else:
         print "WARNING: submit called without any POST!"
 
-    return redirect('/' + annotator_name + '/')
+    return redirect('/' + annotator_name + submit_redirect)

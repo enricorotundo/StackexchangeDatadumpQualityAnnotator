@@ -23,5 +23,5 @@ urlpatterns = [
     url(r'submit/$', views.submit),
     url(r'^(?P<annotator_name>\w{0,10})/$', views.entry_point),
     url(r'^(?P<annotator_name>\w{0,10})/shared$', views.shared_list),
-    url(r'^(?P<annotator_name>\w{0,10})/(?P<db_name>\w{0,10})/(?P<question_id>\d{0,20})/$', views.annotation),
+    url(r'^(?P<annotator_name>\w{0,10})/(?P<db_name>\w{0,10})/(?P<question_id>\d{0,20})/(?P<shared>[s]?)/?$', views.annotation),
 ]

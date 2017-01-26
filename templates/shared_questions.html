@@ -33,8 +33,8 @@
                 {% for question in questions_list %}
                     <li class="list-group-item">
                         {{ question.3 }}.
-                        <a href="/{{ annotator_name }}/{{ question.0 }}/{{ question.1 }}">
-                            /{{ annotator_name }}/{{ question.0 }}/{{ question.1 }}
+                        <a href="/{{ annotator_name }}/{{ question.0 }}/{{ question.1 }}/s">
+                            /{{ annotator_name }}/{{ question.0 }}/{{ question.1 }}/s
                         </a>
                         {% if question.2 == "Done" %}
                             <span class="label label-success pull-right">{{ question.2 }}</span>

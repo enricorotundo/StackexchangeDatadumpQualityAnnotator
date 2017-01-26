@@ -11,6 +11,12 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <style>
+        label {
+            font-weight: normal !important;
+        }
+
+    </style>
     <meta charset="UTF-8">
     <title>{{ question_id }}</title>
 </head>
@@ -20,16 +26,23 @@
     <form action="/submit/" method="post">{% csrf_token %}
     <input type="hidden" name="db_name" value="{{ data.db_name }}">
     <input type="hidden" name="annotator_name" value="{{ data.annotator_name }}">
+    <input type="hidden" name="submit_redirect" value="{{ data.submit_redirect }}">
     {% load custom_filter %}
 
     {% autoescape off %}
+
     <div class="container">
         <div class="row">
             <div class="col-md-6">
                 <a href="/">Home</a>
             </div>
             <div class="col-md-6 text-right">
-                <a href="/{{ data.annotator_name }}">Skip this question</a>
+                {% if data.submit_redirect == "/" %}
+                    <a href="/{{ data.annotator_name }}{{ data.submit_redirect }}">Skip this question</a>
+                {% endif %}
+                {% if data.submit_redirect == "/shared" %}
+                    <a href="/{{ data.annotator_name }}{{ data.submit_redirect }}">Go to questions list</a>
+                {% endif %}
             </div>
         </div>
 
@@ -38,13 +51,14 @@
     <div class="container">
         <h1>{{ data.question_title }}</h1>
         <p>{{ data.question_body }}</p>
+        <hr>
         <p>
-            <input id="{{ data.question_id }}" type="radio" value="0" name="{{ data.question_id }}_quality" > Low
-            <input id="{{ data.question_id }}" type="radio" value="1" name="{{ data.question_id }}_quality" > Medium
-            <input id="{{ data.question_id }}" type="radio" value="2" name="{{ data.question_id }}_quality" > High
-            <input id="{{ data.question_id }}" type="radio" value="-1" name="{{ data.question_id }}_quality" > <em>Don't know</em>
+            <label><input id="{{ data.question_id }}" type="radio" value="0" name="{{ data.question_id }}_quality" > Low </label>
+            <label><input id="{{ data.question_id }}" type="radio" value="1" name="{{ data.question_id }}_quality" > Medium </label>
+            <label><input id="{{ data.question_id }}" type="radio" value="2" name="{{ data.question_id }}_quality" > High </label>
+            <label><input id="{{ data.question_id }}" type="radio" value="-1" name="{{ data.question_id }}_quality" > <em>Don't know</em> </label>
             {% if data.question_quality is not None %}
-                <mark>NOTE: Previously annotated as <strong>{{ data.question_quality | translateQuality }}</strong></mark>
+                <mark><strong>NOTE: Previously annotated as "{{ data.question_quality | translateQuality }}"</strong></mark>
             {% endif %}
         </p>
     </div>
@@ -60,13 +74,14 @@
                 <small><em>answer_id: {{ answer.answer_id }}</em></small>
             </p>
             <p>{{ answer.answer_body | striptags }}</p>
+            <hr>
             <p>
-                <input id="{{ answer.answer_id }}" type="radio" value="0" name="{{ answer.answer_id }}_quality" > Low
-                <input id="{{ answer.answer_id }}" type="radio" value="1" name="{{ answer.answer_id }}_quality" > Medium
-                <input id="{{ answer.answer_id }}" type="radio" value="2" name="{{ answer.answer_id }}_quality" > High
-                <input id="{{ answer.answer_id }}" type="radio" value="-1" name="{{ answer.answer_id }}_quality" > <em>Don't know</em>
+                <label><input id="{{ answer.answer_id }}" type="radio" value="0" name="{{ answer.answer_id }}_quality" > Low </label>
+                <label><input id="{{ answer.answer_id }}" type="radio" value="1" name="{{ answer.answer_id }}_quality" > Medium </label>
+                <label><input id="{{ answer.answer_id }}" type="radio" value="2" name="{{ answer.answer_id }}_quality" > High </label>
+                <label><input id="{{ answer.answer_id }}" type="radio" value="-1" name="{{ answer.answer_id }}_quality" > <em>Don't know</em> </label>
                 {% if data.question_quality is not None %}
-                    <mark>NOTE: Previously annotated as <strong>{{ answer.answer_quality | translateQuality }}</strong></mark>
+                    <mark><strong>NOTE: Previously annotated as "{{ answer.answer_quality | translateQuality }}"</strong></mark>
                 {% endif %}
             </p>
         </div>
