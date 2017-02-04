@@ -90,10 +90,10 @@ def index(request):
         data["shared_count_christine"] += Posts.objects.using(db_name).filter(pk__in=shared_questions[db_name]).exclude(annotatedqualitychristine__isnull=True).count()
         data["shared_count_henrik"] += Posts.objects.using(db_name).filter(pk__in=shared_questions[db_name]).exclude(annotatedqualityhenrik__isnull=True).count()
 
-        data["count_enrico"] += Posts.objects.using(db_name).filter(posttypeid=1).exclude(pk__in=shared_questions[db_name]).exclude(annotatedqualityenrico__isnull=True).count()
-        data["count_marit"] += Posts.objects.using(db_name).filter(posttypeid=1).exclude(pk__in=shared_questions[db_name]).exclude(annotatedqualitymarit__isnull=True).count()
-        data["count_christine"] += Posts.objects.using(db_name).filter(posttypeid=1).exclude(pk__in=shared_questions[db_name]).exclude(annotatedqualitychristine__isnull=True).count()
-        data["count_henrik"] += Posts.objects.using(db_name).filter(posttypeid=1).exclude(pk__in=shared_questions[db_name]).exclude(annotatedqualityhenrik__isnull=True).count()
+        data["count_enrico"] += Annotationscount.objects.using(db_name).get(id=0).enrico
+        data["count_marit"] += Annotationscount.objects.using(db_name).get(id=0).marit
+        data["count_christine"] += Annotationscount.objects.using(db_name).get(id=0).christine
+        data["count_henrik"] += Annotationscount.objects.using(db_name).get(id=0).henrik
 
     context = {
         'data' : data
@@ -252,6 +252,24 @@ def submit(request, annotator_name=None):
         annotator_name = request.POST['annotator_name']
         db_name = request.POST['db_name']
         submit_redirect = request.POST['submit_redirect']
+
+        if submit_redirect == '/':
+            count_obj = Annotationscount.objects.using(db_name).get(id=0)
+
+            if annotator_name == 'enrico':
+                count_obj.enrico += 1
+
+            if annotator_name == 'marit':
+                count_obj.marit += 1
+
+            if annotator_name == 'christine':
+                count_obj.christine += 1
+
+            if annotator_name == 'henrik':
+                count_obj.henrik += 1
+
+            count_obj.save()
+
 
         # retrieve the available annotations
         annotations = dict()

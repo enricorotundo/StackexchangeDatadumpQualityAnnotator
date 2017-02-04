@@ -34,6 +34,15 @@ CREATE TABLE Posts (
     AnnotatedQualityHenrik TINYINT
 );
 
+CREATE TABLE AnnotationsCount (
+    Id INT NOT NULL PRIMARY KEY,
+    Enrico INT,
+    Marit INT,
+    Christine INT,
+    Henrik INT
+);
+
+INSERT INTO AnnotationsCount VALUES(0,0,0,0,0);
 
 load xml infile '/Users/erotundo/PycharmProjects/DatasetAnnotatorProj/data_source/stackexchange_v12Sept2016/cooking.stackexchange.com/Posts.xml'
 into table Posts
@@ -72,6 +81,15 @@ CREATE TABLE Posts (
     AnnotatedQualityHenrik TINYINT
 );
 
+CREATE TABLE AnnotationsCount (
+    Id INT NOT NULL PRIMARY KEY,
+    Enrico INT,
+    Marit INT,
+    Christine INT,
+    Henrik INT
+);
+
+INSERT INTO AnnotationsCount VALUES(0,0,0,0,0);
 
 load xml infile '/Users/erotundo/PycharmProjects/DatasetAnnotatorProj/data_source/stackexchange_v12Sept2016/travel.stackexchange.com/Posts.xml'
 into table Posts
@@ -108,6 +126,16 @@ CREATE TABLE Posts (
     AnnotatedQualityChristine TINYINT,
     AnnotatedQualityHenrik TINYINT
 );
+
+CREATE TABLE AnnotationsCount (
+    Id INT NOT NULL PRIMARY KEY,
+    Enrico INT,
+    Marit INT,
+    Christine INT,
+    Henrik INT
+);
+
+INSERT INTO AnnotationsCount VALUES(0,0,0,0,0);
 
 load xml infile '/Users/erotundo/PycharmProjects/DatasetAnnotatorProj/data_source/stackexchange_v12Sept2016/webapps.stackexchange.com/Posts.xml'
 into table Posts

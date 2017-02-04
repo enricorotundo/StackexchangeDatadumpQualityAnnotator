@@ -10,6 +10,18 @@ from __future__ import unicode_literals
 from django.db import models
 
 
+class Annotationscount(models.Model):
+    id = models.IntegerField(db_column='Id', primary_key=True)  # Field name made lowercase.
+    enrico = models.IntegerField(db_column='Enrico', blank=True, null=True)  # Field name made lowercase.
+    marit = models.IntegerField(db_column='Marit', blank=True, null=True)  # Field name made lowercase.
+    christine = models.IntegerField(db_column='Christine', blank=True, null=True)  # Field name made lowercase.
+    henrik = models.IntegerField(db_column='Henrik', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'AnnotationsCount'
+
+
 class Posts(models.Model):
     id = models.IntegerField(db_column='Id', primary_key=True)  # Field name made lowercase.
     posttypeid = models.IntegerField(db_column='PostTypeId')  # Field name made lowercase.
@@ -43,13 +55,11 @@ class Posts(models.Model):
         db_table = 'Posts'
 
 
-class Annotationscount(models.Model):
-    id = models.IntegerField(db_column='Id', primary_key=True)  # Field name made lowercase.
-    enrico = models.IntegerField(db_column='Enrico', blank=True, null=True)  # Field name made lowercase.
-    marit = models.IntegerField(db_column='Marit', blank=True, null=True)  # Field name made lowercase.
-    christine = models.IntegerField(db_column='Christine', blank=True, null=True)  # Field name made lowercase.
-    henrik = models.IntegerField(db_column='Henrik', blank=True, null=True)  # Field name made lowercase.
+class DjangoMigrations(models.Model):
+    app = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    applied = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'AnnotationsCount'
+        db_table = 'django_migrations'
