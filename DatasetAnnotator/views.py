@@ -1,11 +1,8 @@
 from django.http import HttpResponse
-from django.views import generic
 from random import choice
 from django.template import loader
 from django.shortcuts import redirect
-from django.utils import timezone
 from .models import *
-import random
 
 
 def get_shared_questions():
