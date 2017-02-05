@@ -25,7 +25,7 @@ SECRET_KEY = 'v5lw69el55uv8znq&ma1y5pa6r!n3vtih)xmr7wo^pd2f_s5nt'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['54.194.57.17', 'ec2-54-194-57-17.eu-west-1.compute.amazonaws.com']
+ALLOWED_HOSTS = [u'localhost', u'54.194.57.17', u'ec2-54-194-57-17.eu-west-1.compute.amazonaws.com']
 
 
 # Application definition
@@ -75,36 +75,9 @@ WSGI_APPLICATION = 'DatasetAnnotatorProj.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
+# production
 DATABASES = {
     'default': {},
-
-    """
-    'cooking': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cooking_stackexchange_com',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '8889',
-    },
-    'travel': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'travel_stackexchange_com',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '8889',
-    },
-    'webapps': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'webapps_stackexchange_com',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '8889',
-    }
-    """
-
     'cooking': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'cooking_stackexchange_com',
@@ -130,6 +103,38 @@ DATABASES = {
         'PORT': '3306',
     }
 }
+
+# Development in localhost
+"""
+DATABASES = {
+    'default': {},
+    'cooking': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cooking_stackexchange_com',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '8889',
+    },
+    'travel': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'travel_stackexchange_com',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '8889',
+    },
+    'webapps': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'webapps_stackexchange_com',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '8889',
+    }
+}
+"""
+
 
 
 
