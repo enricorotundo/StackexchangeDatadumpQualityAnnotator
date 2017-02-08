@@ -103,9 +103,8 @@ DATABASES = {
         'PORT': '3306',
     }
 }
+
 """
-
-
 # Development in localhost
 
 DATABASES = {
