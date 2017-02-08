@@ -103,9 +103,11 @@ DATABASES = {
         'PORT': '3306',
     }
 }
+"""
+
 
 # Development in localhost
-"""
+
 DATABASES = {
     'default': {},
     'cooking': {
@@ -133,8 +135,8 @@ DATABASES = {
         'PORT': '8889',
     }
 }
-"""
 
+"""
 
 
 

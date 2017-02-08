@@ -73,7 +73,7 @@
             <p>
                 <small><em>answer_id: {{ answer.answer_id }}</em></small>
             </p>
-            <p>{{ answer.answer_body | striptags }}</p>
+            <p>{{ answer.answer_body }}</p>
             <hr>
             <p>
                 <label><input id="{{ answer.answer_id }}" type="radio" value="0" name="{{ answer.answer_id }}_quality" > Low </label>
