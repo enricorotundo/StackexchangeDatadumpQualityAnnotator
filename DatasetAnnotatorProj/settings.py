@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'DatasetAnnotator',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -76,6 +77,8 @@ WSGI_APPLICATION = 'DatasetAnnotatorProj.wsgi.application'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 # production
+
+"""
 DATABASES = {
     'default': {},
     'cooking': {
@@ -103,8 +106,8 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-
 """
+
 # Development in localhost
 
 DATABASES = {
@@ -135,7 +138,7 @@ DATABASES = {
     }
 }
 
-"""
+
 
 
 
@@ -177,3 +180,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+
