@@ -179,6 +179,7 @@ def annotation(request, annotator_name, db_name, question_id, shared=None):
     all_answers_objs = Posts.objects \
         .using(db_name)\
         .filter(parentid=question_id)\
+        .filter(posttypeid=2)\
         .order_by('creationdate')
 
     # if retrieved question has not answers get a new one
