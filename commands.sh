@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 # run Jupyter notebook
-python manage.py shell_plus --notebook
+venv/bin/python manage.py shell_plus --notebook

@@ -4,7 +4,6 @@ from django.template import loader
 from django.shortcuts import redirect
 from .models import *
 
-
 def get_shared_questions():
     """
     databases = ['cooking', 'travel', 'webapps']
