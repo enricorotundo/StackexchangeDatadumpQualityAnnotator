@@ -25,7 +25,9 @@ SECRET_KEY = 'v5lw69el55uv8znq&ma1y5pa6r!n3vtih)xmr7wo^pd2f_s5nt'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [u'localhost', u'54.194.57.17', u'ec2-54-194-57-17.eu-west-1.compute.amazonaws.com']
+ALLOWED_HOSTS = [u'localhost',
+                 u'54.194.57.17',
+                 u'ec2-54-194-57-17.eu-west-1.compute.amazonaws.com']
 
 
 # Application definition
@@ -78,7 +80,7 @@ WSGI_APPLICATION = 'DatasetAnnotatorProj.wsgi.application'
 
 # production
 
-"""
+
 DATABASES = {
     'default': {},
     'cooking': {
@@ -106,6 +108,7 @@ DATABASES = {
         'PORT': '3306',
     }
 }
+
 """
 
 # Development in localhost
@@ -137,9 +140,7 @@ DATABASES = {
         'PORT': '8889',
     }
 }
-
-
-
+"""
 
 
 # Password validation

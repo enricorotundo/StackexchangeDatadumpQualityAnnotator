@@ -1,0 +1,8 @@
+
+
+# run Jupyter notebook (better use PyCharm's run)
+venv/bin/python manage.py shell_plus --notebook
+
+# run management commands
+venv/bin/python manage.py export_annotations
+venv/bin/python manage.py restore_db (WARN: USE IT CAREFULLY!!!!)
