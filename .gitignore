@@ -2,9 +2,6 @@ data_source/**/*.xml
 .DS_Store
 .idea/*
 
-annotations_backups/*
-Analysis/plots/*.pdf
-Analysis/plots/*.png
 
 
 
@@ -105,8 +102,11 @@ ENV/
 # Rope project settings
 .ropeproject
 .idea/
-Analysis/plots/
+
 annotations_backups/
 data_source/stackexchange_v12Sept2016/cooking.stackexchange.com/
 data_source/stackexchange_v12Sept2016/travel.stackexchange.com/
 data_source/stackexchange_v12Sept2016/webapps.stackexchange.com/
+
+AnalysisQuality/plots/
+AnalysisBestAnswer/plots/**/
