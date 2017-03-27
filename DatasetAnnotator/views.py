@@ -3,10 +3,13 @@ from random import choice
 from django.template import loader
 from django.shortcuts import redirect
 from .models import *
+from DatasetAnnotatorProj import settings
+
 
 def get_shared_questions():
     """
-    databases = ['cooking', 'travel', 'webapps']
+    import random
+    databases = settings.DATABASES
     shared_questions = {}
     random.seed(a=42)
     for db_name in databases:
@@ -16,13 +19,43 @@ def get_shared_questions():
             .using(db_name) \
             .filter(posttypeid=1) \
             .values_list('id', flat=True)
-        while len(shared_questions_db) < 33:
+        while len(shared_questions_db) < 25:
             question_id = random.choice(all_questions_ids)
             question_obj = Posts.objects.using(db_name).get(pk=question_id)
             answers_count = Posts.objects.using(db_name).filter(parentid=question_id).count()
             if answers_count > 0:
                 shared_questions_db.append(question_id)
         shared_questions[db_name] = shared_questions_db
+    import pprint
+    pprint.pprint(shared_questions)
+    """
+
+    shared_questions = {'travel': [51421L,
+                                   1943L,
+                                   22395L,
+                                   59128L,
+                                   54082L,
+                                   6740L,
+                                   36111L,
+                                   2351L,
+                                   18501L,
+                                   42884L,
+                                   2047L,
+                                   17027L,
+                                   45563L,
+                                   64634L,
+                                   480L,
+                                   64417L,
+                                   26792L,
+                                   11694L,
+                                   74545L,
+                                   26562L,
+                                   7154L,
+                                   7419L,
+                                   67002L,
+                                   49231L,
+                                   64479L]}
+
     """
     shared_questions = {
         'webapps': [87766L, 26903L, 62617L,
@@ -62,6 +95,9 @@ def get_shared_questions():
             53908L, 37637L, 71194L
         ]
     }
+    """
+
+
     return shared_questions
 
 
@@ -139,8 +175,9 @@ def entry_point(request, annotator_name=None):
     print "Entrypoint for " + annotator_name
 
     # randomly choose the database
-    databases = ['cooking', 'travel', 'webapps']
+    databases = ['travel']
     choosen_db = choice(databases)
+
 
     # get all questions
     # assumes: if a question's annotated, then all the answers have been annotated al well
