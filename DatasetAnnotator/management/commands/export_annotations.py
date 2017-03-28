@@ -10,7 +10,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('Exporting annotations')
 
-        databases = ['cooking', 'travel', 'webapps']
+        #databases = ['cooking', 'travel', 'webapps']
+        databases = ['travel']
 
         for db in databases:
             file_name = '{}_Posts_{}.csv'.format(db, datetime.datetime.utcnow().isoformat())

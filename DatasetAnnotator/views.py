@@ -9,7 +9,7 @@ from DatasetAnnotatorProj import settings
 def get_shared_questions():
     """
     import random
-    databases = settings.DATABASES
+    databases = ['travel']
     shared_questions = {}
     random.seed(a=42)
     for db_name in databases:
@@ -18,8 +18,9 @@ def get_shared_questions():
         all_questions_ids = Posts.objects \
             .using(db_name) \
             .filter(posttypeid=1) \
+            .filter(acceptedanswerid__isnull=False) \
             .values_list('id', flat=True)
-        while len(shared_questions_db) < 25:
+        while len(shared_questions_db) < 100:
             question_id = random.choice(all_questions_ids)
             question_obj = Posts.objects.using(db_name).get(pk=question_id)
             answers_count = Posts.objects.using(db_name).filter(parentid=question_id).count()
@@ -30,6 +31,109 @@ def get_shared_questions():
     pprint.pprint(shared_questions)
     """
 
+    shared_questions = {'travel': [44925L,
+                1044L,
+                13896L,
+                10251L,
+                52348L,
+                47877L,
+                67671L,
+                4126L,
+                24220L,
+                1327L,
+                10044L,
+                31629L,
+                1153L,
+                9004L,
+                45787L,
+                36737L,
+                10148L,
+                40097L,
+                60137L,
+                269L,
+                59883L,
+                49372L,
+                18938L,
+                7140L,
+                73450L,
+                18647L,
+                4365L,
+                4573L,
+                64099L,
+                42216L,
+                59986L,
+                51842L,
+                35928L,
+                74805L,
+                21285L,
+                37364L,
+                61522L,
+                43272L,
+                65267L,
+                39294L,
+                49889L,
+                2062L,
+                10461L,
+                14683L,
+                3759L,
+                10776L,
+                4772L,
+                14049L,
+                44652L,
+                20389L,
+                20741L,
+                9519L,
+                13497L,
+                71964L,
+                45588L,
+                42621L,
+                7794L,
+                51768L,
+                7492L,
+                21335L,
+                76998L,
+                44964L,
+                37726L,
+                48349L,
+                63782L,
+                57303L,
+                10578L,
+                1454L,
+                17272L,
+                13533L,
+                9589L,
+                72446L,
+                66398L,
+                17238L,
+                46237L,
+                22469L,
+                69316L,
+                26362L,
+                13385L,
+                11451L,
+                38050L,
+                13241L,
+                39835L,
+                68165L,
+                22687L,
+                10078L,
+                77776L,
+                33981L,
+                4277L,
+                2116L,
+                5113L,
+                43994L,
+                58613L,
+                24225L,
+                2966L,
+                21486L,
+                77658L,
+                35428L,
+                74638L,
+                65226L]}
+
+    """
+    v3
     shared_questions = {'travel': [51421L,
                                    1943L,
                                    22395L,
@@ -55,8 +159,11 @@ def get_shared_questions():
                                    67002L,
                                    49231L,
                                    64479L]}
+    """
+
 
     """
+    #v2
     shared_questions = {
         'webapps': [87766L, 26903L, 62617L,
             35474L, 41781L, 22823L,
@@ -184,6 +291,7 @@ def entry_point(request, annotator_name=None):
     all_questions_ids = Posts.objects\
         .using(choosen_db)\
         .filter(posttypeid=1) \
+        .filter(acceptedanswerid__isnull=False) \
         .values_list('id', flat=True)
 
     # retrieve a random question
