@@ -11,20 +11,22 @@ Features from:
 }
 """
 
-
+import re
+from nltk.tokenize import sent_tokenize
 
 def ty_cpc(text):
-    """
-    returns: 
-    """
-    return 0
+    """Return the number of words capitalized in @text"""
+    regex = r"\b[A-Z]\S+"
+    matches = re.findall(regex, text)
+    result = len(matches)
+    return result
 
 
 def ty_cpe(text):
-    """
-    returns: number of capitalization errors
-    """
-    return 0
+    """Return the number of capitalization errors in @text. 
+    First letter of a sentence not capitalized"""
+    result = len(sent_tokenize(text))
+    return result
 
 
 def ty_poc(text):
