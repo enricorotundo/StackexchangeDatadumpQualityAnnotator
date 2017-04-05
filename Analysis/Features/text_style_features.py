@@ -25,34 +25,48 @@ def ty_cpc(text):
 def ty_cpe(text):
     """Return the number of capitalization errors in @text. 
     First letter of a sentence not capitalized"""
-    result = len(sent_tokenize(text))
+    result = 0
+    for sent in sent_tokenize(text):
+        if len(sent) > 0:
+            if not sent[0].isupper():
+                result = result + 1
     return result
 
 
 def ty_poc(text):
+    """Return excessive punctuation count.
+    Repeated ellipsis, repeated question marks, repeated spacing (irregular).
     """
-    returns: punctuation count
-    """
-    return 0
-
+    result = 0
+    # ellipsis
+    regex = r"[.]{3}[.]+"
+    result = result + len(re.findall(regex, text))
+    # repeated question marks
+    regex = r"[?]{1}[?]+"
+    result = result + len(re.findall(regex, text))
+    # irregular spacing
+    regex = r"[ ]{1}[ ]+"
+    result = result + len(re.findall(regex, text))
+    return result
 
 def ty_pde(text):
-    """
-    returns: punctuation density
-    """
-    return 0
+    """Return punctuation density (percent of all characters)"""
+    regex = r"[^a-zA-Z ]"
+    result = len(re.findall(regex, text)) / float(len(text))
+    return result
 
 def ty_sde(text):
-    """
-    returns: space density (nr. of spaces / answer length)
-    """
-    return 0
+    """Return spacing density (percent of all characters)"""
+    regex = r"[ ]"
+    result = len(re.findall(regex, text)) / float(len(text))
+    return result
 
 def ty_wse(text):
+    """Return entropy of the text word sizes (character-level entropy of the text).
     """
-    returns: entropy of the text word sizes
-    """
-    return 0
+    result = 0
+    
+    return result
 
 
 def ty_inn(text):
