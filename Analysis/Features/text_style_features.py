@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Features from: 
 
@@ -12,7 +14,26 @@ Features from:
 """
 
 import re
-from nltk.tokenize import sent_tokenize
+
+import nltk
+nltk.data.path.append('venv/nltk_data')
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import wordnet as wn
+
+from Analysis.Utils import wikipedia_misspellings
+
+
+
+AUXIL_VERBS = set(['will', 'shall', 'cannot', 'may', 'need to', 'would', 'should', 'could', 'might', 'must', 'ought',
+                  'ought to', 'can’t', 'can'])
+PRONOUNS = set(['I', 'me', 'we', 'us', 'you', 'he', 'him', 'she', 'her', 'it', 'they', 'them', 'thou', 'thee', 'ye',
+               'myself', 'yourself', 'himself', 'herself', 'itself', 'ourselves', 'yourselves', 'themselves', 'oneself',
+               'my', 'mine', 'his', 'hers', 'yours', 'ours', 'theirs', 'its', 'our', 'that', 'their', 'these', 'this',
+               'those', 'your'])
+
+
+
+#TODO before using these functions check for stemming, normalization and encoding!!!
 
 def ty_cpc(text):
     """Return the number of words capitalized in @text"""
@@ -61,14 +82,16 @@ def ty_sde(text):
     result = len(re.findall(regex, text)) / float(len(text))
     return result
 
+#TODO
+# https://en.wikipedia.org/wiki/Entropy_(information_theory)
+# similar to password strength?
 def ty_wse(text):
     """Return entropy of the text word sizes (character-level entropy of the text).
     """
     result = 0
-    
     return result
 
-
+#TODO
 def ty_inn(text):
     """
     returns: information to noise
@@ -76,29 +99,45 @@ def ty_inn(text):
     return 0
 
 def ty_nwnt(text):
-    """
-    returns: number of words not in WordNet
-    """
-    return 0
+    """Return number of words not in WordNet"""
+    result = 0
+    regex = r"[a-zA-Z]+"
+    tokens = word_tokenize(text)
+    for token in tokens:
+        if re.match(regex, token):
+            if token not in wn.words():
+                result = result + 1
+    return result
 
 def ty_typo(text):
+    """Return number of typos.
+    Words not in common typos list https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings
     """
-    returns: number of typo
-    """
-    return 0
+    result = 0
+    regex = r"[a-zA-Z]+"
+    tokens = word_tokenize(text)
+    for token in tokens:
+        if re.match(regex, token):
+            if wikipedia_misspellings.check(token):
+                result = result + 1
+    return result
 
 def ty_slp(text):
-    """
-    returns: size of largest phrase
-    """
-    return 0
+    """Return the size of largest phrase"""
+    result = 0
+    if len(text) > 0:
+        largest_phrase = max(sent_tokenize(text), key=len)
+        result = len(largest_phrase)
+    return result
 
+#TODO
 def ty_lpr(text):
     """
     returns: %p where (length - avg. length) >= 10 words
     """
     return 0
 
+#TODO
 def ty_spr(text):
     """
     returns: %p where (avg. length - length) >= 5 words
@@ -106,22 +145,29 @@ def ty_spr(text):
     return 0
 
 def ty_avc(text):
-    """
-    returns: number of auxiliary verbs
-    """
-    return 0
+    """Return the number of auxiliary verbs"""
+    result = 0
+    tokens = word_tokenize(text)
+    for token in tokens:
+        if token in AUXIL_VERBS:
+            result = result + 1
+    return result
 
+#TODO
 def ty_qc(text):
     """
     returns: number of questions
     """
     return 0
 
+
 def ty_pc(text):
-    """
-    returns: number of pronouns
-    """
-    return 0
+    """Returns number of pronouns"""
+    result = 0
+    tokens = word_tokenize(text)
+    prons_presence = map(lambda token: 1 if token in PRONOUNS else 0, tokens)
+    result = reduce(lambda x,y: x+y, prons_presence)
+    return result
 
 def ty_pvc(text):
     """
