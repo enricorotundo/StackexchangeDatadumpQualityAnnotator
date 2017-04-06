@@ -117,3 +117,6 @@ Analysis/BestAnswer/plots/**/
 **/*.json
 **/*.csv
 **/*.xml
+
+
+tagger.pkl

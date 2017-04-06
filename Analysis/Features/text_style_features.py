@@ -170,8 +170,7 @@ def ty_pc(text):
     return result
 
 def ty_pvc(text):
-    """
-    returns: numbre of passive voice sentences
+    """Return numbrer of passive voice sentences
     """
     return 0
 
