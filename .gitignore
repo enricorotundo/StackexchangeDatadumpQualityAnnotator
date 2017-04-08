@@ -108,8 +108,8 @@ data_source/stackexchange_v12Sept2016/cooking.stackexchange.com/
 data_source/stackexchange_v12Sept2016/travel.stackexchange.com/
 data_source/stackexchange_v12Sept2016/webapps.stackexchange.com/
 
-Analysis/Quality/plots/
-Analysis/BestAnswer/plots/**/
+Analysis/Tasks/Quality/plots/
+Analysis/Tasks/BestAnswer/plots/**/
 
 
 **/*.png
