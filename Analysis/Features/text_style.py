@@ -195,6 +195,7 @@ def ty_cjr(text):
             result = result + 1
     return result
 
+#NOTE not a feature
 def t_lw(text):
     """Return number of (full) words"""
     result = 0
@@ -231,7 +232,6 @@ def ty_ber(text):
     for token in tokens:
         if token in TOBE_VERBS:
             toBeCount = toBeCount + 1
-            print token
     result = toBeCount / float(t_lw(text))
     return result
 
@@ -295,24 +295,28 @@ def ty_spr(text):
             result = result + 1
     return result
 
+#TODO
 def ty_klg(text):
     """
     returns: KLD(good answers)
     """
     return 0
 
+#TODO
 def ty_klt(text):
     """
     returns: KLD(good answers of same category)
     """
     return 0
 
+#TODO
 def ty_klwid(text):
     """
     returns: KLD(Wikipedia discussion pages)
     """
     return 0
 
+#TODO
 def ty_klwi(text):
     """
     returns: KLD(Wikipedia pages classified as "Good"

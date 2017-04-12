@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
-This script extract threads with a best/selected answer and load it into a JSON file.
+DESCRIPTION:
+
+This script extract threads with a best/selected answer and load them into a JSON file.
 Works with StackExchange data dumps, highly inefficient ;-)
 JSON file is encoded in UTF-8 format.
 """
@@ -19,16 +21,39 @@ from DatasetAnnotator.models import *
 # community selection
 db = 'travel'
 OUTPUT_PATH = 'Analysis/Data/' + db + '/'
+FILE_NAME = 'threads_acceptedOnly_ansCountGte4.json'
 
 class Command(BaseCommand):
     help = ''
 
     def handle(self, *args, **options):
-        # get questions with ACCEPTED ANSWER
-        questions = Posts.objects.using(db).filter(posttypeid=1)\
-                                           .filter(acceptedanswerid__isnull=False)
+
+        """
+        FILE_NAME naming schema, _ separated:
+            * threads
+            * all / acceptedOnly
+            * all / ansCountGte2 / ansCountGte4
+        """
+
+        # selecting questions, see above for description
+        if FILE_NAME == 'threads_acceptedOnly_all.json':
+            questions = Posts.objects.using(db).filter(posttypeid=1) \
+                .filter(acceptedanswerid__isnull=False)
+        elif FILE_NAME == 'threads_acceptedOnly_ansCountGte2.json':
+            questions = Posts.objects.using(db).filter(posttypeid=1) \
+                .filter(acceptedanswerid__isnull=False) \
+                .filter(answercount__gte=2)
+        elif FILE_NAME == 'threads_acceptedOnly_ansCountGte4.json':
+            questions = Posts.objects.using(db).filter(posttypeid=1) \
+                .filter(acceptedanswerid__isnull=False) \
+                .filter(answercount__gte=4)
+
         all_answers = Posts.objects.using(db).filter(posttypeid=2)
+
         threads = []
+
+        #TODO retrive up/downvotes from "Votes" table
+
         print 'Nr. of questions selected: {}'.format(questions.count())
 
         count = 0
@@ -39,11 +64,12 @@ class Command(BaseCommand):
 
             answers = all_answers.filter(parentid=question.id)
 
-            q = {'title': question.title,
-                 'body': question.body,
-                 'user': question.owneruserid,
-                 'tags': question.tags,
-                 }
+            q = {
+                    'title': question.title,
+                    'body': question.body,
+                    'user': question.owneruserid,
+                    'tags': question.tags,
+                }
 
             a = []
 
@@ -57,6 +83,7 @@ class Command(BaseCommand):
 
             # buidling item
             threads.append({
+                'thread_id': question.id,
                 'question': q,
                 'other_answers': a,
                 'accepted_answer': {
@@ -65,8 +92,9 @@ class Command(BaseCommand):
                 }
             })
 
+
         print 'Sample thread: \n{}'.format(threads[0])
 
         # write in utf-8 encoding
-        with io.open(OUTPUT_PATH + 'threads.json', 'w', encoding='utf-8') as f:
+        with io.open(OUTPUT_PATH + FILE_NAME, 'w', encoding='utf-8') as f:
             f.write(json.dumps(threads, ensure_ascii=False))
