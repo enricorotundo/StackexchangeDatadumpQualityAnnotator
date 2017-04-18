@@ -83,6 +83,7 @@ def load(thread):
 
 def thread_extract(thread):
     thread_dataset = []
+
     # extract accepted_answer feats
     datapoint = dict()
     for f in UNARY_FUNCS:

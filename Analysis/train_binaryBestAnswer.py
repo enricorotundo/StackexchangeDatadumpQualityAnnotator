@@ -12,6 +12,8 @@ https://github.com/dask/dask/issues/2203
 
 import numpy as np
 import dask.dataframe as ddf
+import dask.array as da
+from dask import delayed
 import dask
 from sklearn.model_selection import GroupShuffleSplit
 import sklearn.pipeline
@@ -27,14 +29,14 @@ OUTPUT_PATH_DIR = DATA_DIR_PATH + '/features_{}_{}/'.format(SRC_FILE_NAME.split(
 RND_SEED = 42
 
 
+def generate_indexes(train, test, indexes):
+    """Return an array with 1 if related index is in test set, 0 if in training set 
+    """
+    return np.array(map(lambda x: 0 if x in train else 1, indexes))
 
-def main():
-    df = ddf.read_csv(OUTPUT_PATH_DIR + '*.part.csv', encoding='utf-8')
 
-    # TODO: pre-processing: normalization
-
-    # TODO: pre-processing: scaling
-
+def get_train_test_indexes(df):
+    # split training/testing set
     splitter = GroupShuffleSplit(n_splits=1, train_size=0.7, random_state=RND_SEED)
     # indexes are relative to the related partition
     train_indexes_list = []
@@ -47,6 +49,7 @@ def main():
 
         # splitting-train-test: use 'thread_id' as groups labels
         groups = df.get_partition(partition_index)['thread_id']
+        # with n_splits=1 split returns only one generator, so .next()
         train_indexes, test_indexes = splitter.split(X, groups=groups).next()
         train_indexes_list.append(train_indexes)
         test_indexes_list.append(test_indexes)
@@ -60,26 +63,47 @@ def main():
         else:
             partitions_offsets.append(len(df.get_partition(i)))
 
-    # training set indexes
+    # compute train set indexes
     incr_offset = 0
-    train_indexes_list_offsetted = []
+    train_indexes_list_offsetted = []  # train examples indexes in df
     for index, offset in enumerate(partitions_offsets):
         train_indexes_list_offsetted.append(train_indexes_list[index] + offset + incr_offset)
         incr_offset = incr_offset + offset
     train_indexes_offsetted_flat = [index for index_list in train_indexes_list_offsetted for index in index_list]
 
-    # test set indexes
+    # compute test set indexes
     incr_offset = 0
-    test_indexes_list_offsetted = []
+    test_indexes_list_offsetted = []  # test examples indexes in df
     for index, offset in enumerate(partitions_offsets):
         test_indexes_list_offsetted.append(test_indexes_list[index] + offset + incr_offset)
         incr_offset = incr_offset + offset
     test_indexes_offsetted_flat = [index for index_list in test_indexes_list_offsetted for index in index_list]
 
-    print len(train_indexes_offsetted_flat)
-    print len(test_indexes_offsetted_flat)
+    return train_indexes_offsetted_flat, test_indexes_offsetted_flat
+
+
+def selector(df, i):
+    return df.loc[i]
+
+
+def main():
+    df = ddf.read_csv(OUTPUT_PATH_DIR + '*.part.csv', encoding='utf-8')
+
+
+    # TODO: pre-processing: normalization
+
+    # TODO: pre-processing: scaling
+
+    train_indexes_offsetted_flat, test_indexes_offsetted_flat = get_train_test_indexes(df)
+
+    delayed_train_rows = [delayed(selector)(df, i) for i in train_indexes_offsetted_flat]
+    print ddf.from_delayed(delayed_train_rows).compute()
+    
+
 
     """
+    13:30 min
+    
     df_training = ddf.concat([df.loc[i] for i in train_indexes_offsetted_flat])
     df_test = ddf.concat([df.loc[i] for i in test_indexes_offsetted_flat])
     print df_training.size.compute()
@@ -89,22 +113,16 @@ def main():
 
     """
     
-    13:30 min
-    
     TODO:
     alternative, instead of creating new df, just create a column say if it's training_set 
     0/1 and attach it to the original df
     """
 
 
-
-
-
     """
     for partition_index, index_list in enumerate(train_indexes_list):
         dask.concat([df.get_partition(partition_index).loc[index] for index in index_list])
     """
-
 
 
     """
