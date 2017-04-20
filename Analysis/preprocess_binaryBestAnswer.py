@@ -8,7 +8,7 @@ This script reads a feature matrix and pre-process it.
 
 
 import dask
-
+import dask.multiprocessing
 dask.set_options(get=dask.multiprocessing.get)
 
 DB = 'travel'

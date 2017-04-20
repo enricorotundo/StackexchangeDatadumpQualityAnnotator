@@ -3,16 +3,15 @@
 """
 Run this with: time python -m Analysis.split_binaryBestAnswer
 
-This script reads a feature matrix and splits it into training and test set.
- 
-Note: have a look at the following questions:
-http://stackoverflow.com/questions/43364921/how-to-select-data-with-list-of-indexes-from-a-partitioned-df-non-unique-indexe
-https://github.com/dask/dask/issues/2203
+This script reads a feature matrix and splits it into a development and evaluation set.
+
+http://scikit-learn.org/stable/modules/grid_search.html#model-selection-development-and-evaluation
 """
 
 import dask.dataframe as ddf
 from dask import delayed
 import dask
+import dask.multiprocessing
 from sklearn.model_selection import GroupShuffleSplit
 
 dask.set_options(get=dask.multiprocessing.get)
@@ -26,7 +25,6 @@ OUTPUT_PATH_DIR_SPLITTED = DATA_DIR_PATH + '/split_{}_{}/'.format(SRC_FILE_NAME.
 RND_SEED = 42
 
 
-
 @delayed
 def selector(df, i):
     """Called from delayed objects"""
@@ -36,56 +34,33 @@ def selector(df, i):
 def main():
     df = ddf.read_csv(OUTPUT_PATH_DIR + '*.part.csv', encoding='utf-8')
 
-
-    # TODO: pre-processing: normalization
-
-    # TODO: pre-processing: scaling
-
-
-    # split training/testing set
+    # sequence of randomized partitions in which a subset of groups are held out for each split
     splitter = GroupShuffleSplit(n_splits=1, train_size=0.7, random_state=RND_SEED)
-    # indexes are relative to the related partition
-    delayed_train = []
-    delayed_test = []
+
+    # delayed rows (dask.DataFrame) of the final DataFrame
+    delayed_development = []
+    delayed_evaluation = []
+
+    # assumes thread_id are correctly split over partitions
     for partition_index in xrange(df.npartitions):
-
-        X = df.get_partition(partition_index)\
-                .drop('best_answer', axis=1)\
-                .drop('thread_id', axis=1)
-
-        # splitting-train-test: use 'thread_id' as groups labels
+        df_partition = df.get_partition(partition_index)
+        # 'thread_id' as groups
         groups = df.get_partition(partition_index)['thread_id']
-        # with n_splits=1 split returns only one generator, so .next()
-        train_indexes, test_indexes = splitter.split(X, groups=groups).next()
+        # with n_splits=1, split returns only one generator, so .next()
+        indexes_development, indexes_evaluation = splitter.split(df_partition, groups=groups).next()
+        # create delayed objects lists
+        delayed_development.extend([delayed(selector)(df_partition, i) for i in indexes_development])
+        delayed_evaluation.extend([delayed(selector)(df_partition, i) for i in indexes_evaluation])
 
-        delayed_train.extend([delayed(selector)(df.get_partition(partition_index), i) for i in train_indexes])
-        delayed_test.extend([delayed(selector)(df.get_partition(partition_index), i) for i in test_indexes])
-
-    df_training = ddf.from_delayed(delayed_train, meta=df)
+    # from delayed -> DataFrame
+    df_training = ddf.from_delayed(delayed_development, meta=df)
     df_training = df_training.repartition(npartitions=4)
-
-    df_testing = ddf.from_delayed(delayed_test, meta=df)
+    df_testing = ddf.from_delayed(delayed_evaluation, meta=df)
     df_testing = df_testing.repartition(npartitions=4)
 
-
-    df_training.to_csv(OUTPUT_PATH_DIR_SPLITTED + 'train-*.csv', encoding='utf-8')
-    df_testing.to_csv(OUTPUT_PATH_DIR_SPLITTED + 'test-*.csv', encoding='utf-8')
-
+    df_training.to_csv(OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv', encoding='utf-8')
+    df_testing.to_csv(OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv', encoding='utf-8')
 
 
-
-
-    """
-    clf = sklearn.ensemble.RandomForestClassifier()
-
-    pipelines_steps = [('random_forest', clf)]
-    pipeline = sklearn.pipeline.Pipeline(pipelines_steps)
-    parameters = dict(random_forest__n_estimators=[50, 100])
-    cv = GridSearchCV(pipeline, cv=5, param_grid=parameters)
-    cv.fit(X_train, y_train)
-    y_predictions = cv.predict(X_test)
-    report = sklearn.metrics.classification_report(y_test, y_pred)
-    print report
-    """
 if __name__ == "__main__":
     main()

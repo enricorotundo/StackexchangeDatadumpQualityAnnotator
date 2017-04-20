@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 import nltk
 import dask.bag as db
 import dask
+import dask.multiprocessing
 
 from Analysis.Features import text_style
 
@@ -127,6 +128,8 @@ def main():
         filelist = glob.glob(OUTPUT_PATH_DIR + "*.part")
         for f in filelist:
             os.remove(f)
+
+        # TODO: make sure divisions/partitions take thread_id into account!!!!!!!!!
 
         # always use utf-8
         ddf.to_csv(OUTPUT_PATH_DIR + '.csv', encoding='utf-8')
