@@ -8,29 +8,29 @@ This script reads a feature matrix and splits it into a development and evaluati
 http://scikit-learn.org/stable/modules/grid_search.html#model-selection-development-and-evaluation
 """
 
+import glob
+import os
+import logging
+
 import dask.dataframe as ddf
 import dask.multiprocessing
 from dask import delayed
 from sklearn.model_selection import GroupShuffleSplit
 
 from Analysis.Utils.delayed import selector
+from Utils import settings_binaryBestAnswer as settings
 
+logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 dask.set_options(get=dask.multiprocessing.get)
-
-DB = 'travel'
-DATA_DIR_PATH = 'Analysis/Data/' + DB
-SRC_FILE_NAME = 'threads_acceptedOnly_ansCountGte4.json'
-SRC_FILE_PATH = DATA_DIR_PATH + '/' + SRC_FILE_NAME
-OUTPUT_PATH_DIR = DATA_DIR_PATH + '/features_{}_{}/'.format(SRC_FILE_NAME.split(".")[0], 'binaryBestAnswer')
-OUTPUT_PATH_DIR_SPLITTED = DATA_DIR_PATH + '/split_{}_{}/'.format(SRC_FILE_NAME.split(".")[0], 'binaryBestAnswer')
-RND_SEED = 42
 
 
 def main():
-    df = ddf.read_csv(OUTPUT_PATH_DIR + '*.part.csv', encoding='utf-8')
+    logging.info('Dataset splitting: started.')
+
+    df = ddf.read_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)
 
     # sequence of randomized partitions in which a subset of groups are held out for each split
-    splitter = GroupShuffleSplit(n_splits=1, train_size=0.7, random_state=RND_SEED)
+    splitter = GroupShuffleSplit(n_splits=1, train_size=settings.TRAIN_SIZE, random_state=settings.RND_SEED)
 
     # delayed rows (dask.DataFrame) of the final DataFrame
     delayed_development = []
@@ -49,13 +49,25 @@ def main():
 
     # from delayed -> DataFrame
     df_training = ddf.from_delayed(delayed_development, meta=df)
-    df_training = df_training.repartition(npartitions=4)
+    df_training = df_training.repartition(npartitions=settings.N_PARTITIONS)
     df_testing = ddf.from_delayed(delayed_evaluation, meta=df)
-    df_testing = df_testing.repartition(npartitions=4)
+    df_testing = df_testing.repartition(npartitions=settings.N_PARTITIONS)
 
-    df_training.to_csv(OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv', encoding='utf-8')
-    df_testing.to_csv(OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv', encoding='utf-8')
+    # create output directory
+    if not os.path.exists(settings.OUTPUT_PATH_DIR_SPLITTED):
+        logging.info('Creating output directory in {}.'.format(settings.OUTPUT_PATH_DIR_SPLITTED))
+        os.makedirs(settings.OUTPUT_PATH_DIR_SPLITTED)
 
+    # clear output folder first
+    filelist = glob.glob(settings.OUTPUT_PATH_DIR_SPLITTED + "*.csv")
+    for f in filelist:
+        logging.info('Clearing output directory: {}.'.format(f))
+        os.remove(f)
+
+    df_training.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv', encoding=settings.ENCODING)
+    df_testing.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv', encoding=settings.ENCODING)
+
+    logging.info('Dataset splitting: completed.')
 
 if __name__ == "__main__":
     main()

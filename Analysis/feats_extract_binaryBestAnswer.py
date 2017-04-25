@@ -11,25 +11,21 @@ Output datapoints are grouped by thread.
 import json
 import glob
 import os
+import logging
 
 from bs4 import BeautifulSoup
 import nltk
 import dask.bag as db
-import dask
 import dask.multiprocessing
 
 from Analysis.Features import text_style
+from Utils import settings_binaryBestAnswer as settings
 
+logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 nltk.data.path.append('venv/nltk_data')
 dask.set_options(get=dask.multiprocessing.get)
 
-DB = 'travel'
-DATA_DIR_PATH = 'Analysis/Data/' + DB
-SRC_FILE_NAME = 'threads_acceptedOnly_ansCountGte4.json'
-SRC_FILE_PATH = DATA_DIR_PATH + '/' + SRC_FILE_NAME
-OUTPUT_PATH_DIR = DATA_DIR_PATH + '/features_{}_{}/'.format(SRC_FILE_NAME.split(".")[0], 'binaryBestAnswer')
-
-#TODO add other funcs
+# TODO add other funcs
 UNARY_FUNCS = [text_style.ty_cpc,
                text_style.ty_cpe,
                text_style.ty_poc,
@@ -82,6 +78,7 @@ def load(thread):
         'other_answers_body_stripped': other_answers_body_stripped
     }
 
+
 def thread_extract(thread):
     thread_dataset = []
 
@@ -103,36 +100,50 @@ def thread_extract(thread):
         thread_dataset.append(datapoint)
     return thread_dataset
 
-def main():
-    # list of delayed values
-    bag = db.read_text(SRC_FILE_PATH).map(json.loads, encoding='utf-8')
 
-    # bag has just one item
+def main():
+    logging.info('Features extraction: started.')
+
+    # list of delayed values
+    bag = db.read_text(settings.SRC_FILE_PATH).map(json.loads, encoding=settings.ENCODING)
+
+    # bag has just one item!
     for data_list in bag:
-        threads = db.from_sequence(data_list, npartitions=4)
+
+        if settings.DRAFT_MODE:
+            logging.info('Draft mode enabled, using just a sampled dataset.')
+            data_list = data_list[:10]
+        else:
+            logging.info('Draft mode disabled, using whole datasource.')
+            logging.debug(len(data_list))
+
+        threads = db.from_sequence(data_list, npartitions=settings.N_PARTITIONS)
 
         # extract text without html tags
         processed_threads = threads.map(load)
 
         # extract features, flatten result
-        dataset = processed_threads.map(thread_extract)\
-                                   .concat()  #dask.bag.core.Bag
-
-        ddf = dataset.to_dataframe()
+        dataset = processed_threads.map(thread_extract).concat()  # dask.bag.core.Bag
 
         # create output directory
-        if not os.path.exists(OUTPUT_PATH_DIR):
-            os.makedirs(OUTPUT_PATH_DIR)
+        if not os.path.exists(settings.OUTPUT_PATH_DIR):
+            logging.info('Creating output directory in {}.'.format(settings.OUTPUT_PATH_DIR))
+            os.makedirs(settings.OUTPUT_PATH_DIR)
 
         # clear output folder first
-        filelist = glob.glob(OUTPUT_PATH_DIR + "*.part")
+        filelist = glob.glob(settings.OUTPUT_PATH_DIR + "*.csv")
         for f in filelist:
+            logging.info('Clearing output directory: {}.'.format(f))
             os.remove(f)
 
-        # TODO: make sure divisions/partitions take thread_id into account!!!!!!!!!
+        df = dataset.to_dataframe()
+
+        # TODO: make sure divisions/partitions take thread_id into account! Might need switching to PARQUET files
+        ##df = df.set_index('thread_id')
 
         # always use utf-8
-        ddf.to_csv(OUTPUT_PATH_DIR + '.csv', encoding='utf-8')
+        df.to_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)
 
+    logging.info('Features extraction: completed.')
 if __name__ == "__main__":
     main()
