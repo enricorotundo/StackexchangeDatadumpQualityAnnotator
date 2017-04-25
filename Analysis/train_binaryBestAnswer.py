@@ -63,6 +63,7 @@ def scorer(estimator, X, y):
 
     ##y_df.groupby('thread_id').apply(lambda data: score_func(data))
 
+
     print "*********************** \n\n\n"
     return 1.0
 """
