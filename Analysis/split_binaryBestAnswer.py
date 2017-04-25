@@ -9,10 +9,11 @@ http://scikit-learn.org/stable/modules/grid_search.html#model-selection-developm
 """
 
 import dask.dataframe as ddf
-from dask import delayed
-import dask
 import dask.multiprocessing
+from dask import delayed
 from sklearn.model_selection import GroupShuffleSplit
+
+from Analysis.Utils.delayed import selector
 
 dask.set_options(get=dask.multiprocessing.get)
 
@@ -23,12 +24,6 @@ SRC_FILE_PATH = DATA_DIR_PATH + '/' + SRC_FILE_NAME
 OUTPUT_PATH_DIR = DATA_DIR_PATH + '/features_{}_{}/'.format(SRC_FILE_NAME.split(".")[0], 'binaryBestAnswer')
 OUTPUT_PATH_DIR_SPLITTED = DATA_DIR_PATH + '/split_{}_{}/'.format(SRC_FILE_NAME.split(".")[0], 'binaryBestAnswer')
 RND_SEED = 42
-
-
-@delayed
-def selector(df, i):
-    """Called from delayed objects"""
-    return df.loc[[i]]  # needs double brackets so always return a dask.DataFrame
 
 
 def main():
