@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup
 import nltk
 import dask.bag as db
 import dask.multiprocessing
+from dask.diagnostics import ProgressBar
 
 from Analysis.Features import text_style
 from Utils import settings_binaryBestAnswer as settings
@@ -102,48 +103,51 @@ def thread_extract(thread):
 
 
 def main():
-    logging.info('Features extraction: started.')
+    with ProgressBar():
+        logging.info('Features extraction: started.')
 
-    # list of delayed values
-    bag = db.read_text(settings.SRC_FILE_PATH).map(json.loads, encoding=settings.ENCODING)
+        #with ProgressBar(dt=1, minimum=1.0) as pb:
 
-    # bag has just one item!
-    for data_list in bag:
+        # list of delayed values
+        bag = db.read_text(settings.SRC_FILE_PATH).map(json.loads, encoding=settings.ENCODING)
 
-        if settings.DRAFT_MODE:
-            logging.info('Draft mode enabled, using just a sampled dataset.')
-            data_list = data_list[:10]
-        else:
-            logging.info('Draft mode disabled, using whole datasource.')
-            logging.debug(len(data_list))
+        # bag has just one item!
+        for data_list in bag:
 
-        threads = db.from_sequence(data_list, npartitions=settings.N_PARTITIONS)
+            if settings.DRAFT_MODE:
+                logging.info('Draft mode enabled, using just a sampled dataset.')
+                data_list = data_list[:10]
+            else:
+                logging.info('Draft mode disabled, using whole datasource.')
+                logging.debug(len(data_list))
 
-        # extract text without html tags
-        processed_threads = threads.map(load)
+            threads = db.from_sequence(data_list, npartitions=settings.N_PARTITIONS)
 
-        # extract features, flatten result
-        dataset = processed_threads.map(thread_extract).concat()  # dask.bag.core.Bag
+            # extract text without html tags
+            processed_threads = threads.map(load)
 
-        # create output directory
-        if not os.path.exists(settings.OUTPUT_PATH_DIR):
-            logging.info('Creating output directory in {}.'.format(settings.OUTPUT_PATH_DIR))
-            os.makedirs(settings.OUTPUT_PATH_DIR)
+            # extract features, flatten result
+            dataset = processed_threads.map(thread_extract).concat()  # dask.bag.core.Bag
 
-        # clear output folder first
-        filelist = glob.glob(settings.OUTPUT_PATH_DIR + "*.csv")
-        for f in filelist:
-            logging.info('Clearing output directory: {}.'.format(f))
-            os.remove(f)
+            # create output directory
+            if not os.path.exists(settings.OUTPUT_PATH_DIR):
+                logging.info('Creating output directory in {}.'.format(settings.OUTPUT_PATH_DIR))
+                os.makedirs(settings.OUTPUT_PATH_DIR)
 
-        df = dataset.to_dataframe()
+            # clear output folder first
+            filelist = glob.glob(settings.OUTPUT_PATH_DIR + "*.csv")
+            for f in filelist:
+                logging.info('Clearing output directory: {}.'.format(f))
+                os.remove(f)
 
-        # TODO: make sure divisions/partitions take thread_id into account! Might need switching to PARQUET files
-        ##df = df.set_index('thread_id')
+            df = dataset.to_dataframe()
 
-        # always use utf-8
-        df.to_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)
+            # TODO: make sure divisions/partitions take thread_id into account! Might need switching to PARQUET files
+            ##df = df.set_index('thread_id')
 
-    logging.info('Features extraction: completed.')
+            # always use utf-8
+            df.to_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)
+
+        logging.info('Features extraction: completed.')
 if __name__ == "__main__":
     main()

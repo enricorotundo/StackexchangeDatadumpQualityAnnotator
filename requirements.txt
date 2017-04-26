@@ -33,7 +33,7 @@ gensim==0.12.3
 gnureadline==6.3.3
 h5py==2.5.0
 hiveplot==0.1.7.4
-html5lib==0.9999999
+html5lib==1.0b8
 httpretty==0.8.10
 igraph==0.1.11
 ipykernel==4.2.2

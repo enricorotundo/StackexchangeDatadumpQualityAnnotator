@@ -9,6 +9,7 @@ This script reads a feature matrix and pre-process it.
 import logging
 
 import dask.multiprocessing
+from dask.diagnostics import ProgressBar
 
 from Utils import settings_binaryBestAnswer as settings
 
@@ -18,11 +19,12 @@ logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL
 def main():
     logging.info('Pre-processing: started.')
 
-    # TODO: pre-processing: normalization
+    with ProgressBar():
+        # TODO: pre-processing: normalization
+        print "ciao"
+        # TODO: pre-processing: scaling
 
-    # TODO: pre-processing: scaling
-
-    # TODO: others?
+        # TODO: others?
 
     logging.info('Pre-processing: completed.')
 
