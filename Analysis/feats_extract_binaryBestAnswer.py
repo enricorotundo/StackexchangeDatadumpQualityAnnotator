@@ -116,7 +116,7 @@ def main():
 
             if settings.DRAFT_MODE:
                 logging.info('Draft mode enabled, using just a sampled dataset.')
-                data_list = data_list[:10]
+                data_list = data_list[:2]
             else:
                 logging.info('Draft mode disabled, using whole datasource.')
                 logging.debug(len(data_list))
@@ -146,6 +146,7 @@ def main():
             ##df = df.set_index('thread_id')
 
             # always use utf-8
+            # FIXME !!!!!!!!!!!!!!!!!!!!!!!!!
             df.to_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)
 
         logging.info('Features extraction: completed.')

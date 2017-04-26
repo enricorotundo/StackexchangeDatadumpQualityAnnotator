@@ -11,7 +11,7 @@ OUTPUT_PATH_DIR_SPLITTED = DATA_DIR_PATH + '/split_{}_{}/'.format(SRC_FILE_NAME.
 RND_SEED = 42
 ENCODING = 'utf-8'
 TRAIN_SIZE = 0.7
-N_PARTITIONS = 1
+N_PARTITIONS = 2 # must be > 1?
 
 # logging
 LOGGING_FORMAT = '%(asctime)s - %(message)s'
