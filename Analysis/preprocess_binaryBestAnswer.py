@@ -19,7 +19,7 @@ logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL
 def main():
     logging.info('Pre-processing: started.')
 
-    with ProgressBar():
+    with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
         # TODO: pre-processing: normalization
         print "ciao"
         # TODO: pre-processing: scaling

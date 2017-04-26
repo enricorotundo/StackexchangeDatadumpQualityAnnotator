@@ -12,6 +12,13 @@ RND_SEED = 42
 ENCODING = 'utf-8'
 TRAIN_SIZE = 0.7
 N_PARTITIONS = 1
+
+# logging
 LOGGING_FORMAT = '%(asctime)s - %(message)s'
 LOGGING_LEVEL = logging.INFO
+
+# draft mode
 DRAFT_MODE = True
+
+PROGRESS_BAR_DT = 1 # update every x seconds
+PROGRESS_BAR_MIN = 1

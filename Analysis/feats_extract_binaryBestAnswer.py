@@ -103,7 +103,7 @@ def thread_extract(thread):
 
 
 def main():
-    with ProgressBar():
+    with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
         logging.info('Features extraction: started.')
 
         #with ProgressBar(dt=1, minimum=1.0) as pb:

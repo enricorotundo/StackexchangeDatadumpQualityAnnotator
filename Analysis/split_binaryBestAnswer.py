@@ -26,7 +26,7 @@ dask.set_options(get=dask.multiprocessing.get)
 
 
 def main():
-    with ProgressBar():
+    with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
         logging.info('Dataset splitting: started.')
 
         df = ddf.read_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)

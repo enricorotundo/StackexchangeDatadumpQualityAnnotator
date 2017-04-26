@@ -27,7 +27,7 @@ dask.set_options(get=dask.multiprocessing.get)
 logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 
 def main():
-    with ProgressBar():
+    with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
         logging.info('Training: started.')
 
         df_development = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv', encoding=settings.ENCODING)
