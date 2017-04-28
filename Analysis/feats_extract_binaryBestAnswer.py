@@ -18,6 +18,7 @@ import nltk
 import dask.bag as db
 import dask.multiprocessing
 from dask.diagnostics import ProgressBar
+from dask import delayed
 
 from Analysis.Features import text_style
 from Utils import settings_binaryBestAnswer as settings
@@ -49,6 +50,7 @@ UNARY_FUNCS = [text_style.ty_cpc,
                text_style.ty_sipc,
                text_style.ty_spr,
                ]
+
 
 
 #TODO add other funcs + call them in thread_extract()
@@ -103,10 +105,8 @@ def thread_extract(thread):
 
 
 def main():
+    logging.info('Features extraction: started.')
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
-        logging.info('Features extraction: started.')
-
-        #with ProgressBar(dt=1, minimum=1.0) as pb:
 
         # list of delayed values
         bag = db.read_text(settings.SRC_FILE_PATH).map(json.loads, encoding=settings.ENCODING)
@@ -116,7 +116,7 @@ def main():
 
             if settings.DRAFT_MODE:
                 logging.info('Draft mode enabled, using just a sampled dataset.')
-                data_list = data_list[:2]
+                data_list = data_list[:10]
             else:
                 logging.info('Draft mode disabled, using whole datasource.')
                 logging.debug(len(data_list))
@@ -146,9 +146,10 @@ def main():
             ##df = df.set_index('thread_id')
 
             # always use utf-8
-            # FIXME !!!!!!!!!!!!!!!!!!!!!!!!!
-            df.to_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)
+            df.to_csv(settings.OUTPUT_PATH_DIR + 'features-*.csv', encoding=settings.ENCODING)
 
         logging.info('Features extraction: completed.')
+
+
 if __name__ == "__main__":
     main()

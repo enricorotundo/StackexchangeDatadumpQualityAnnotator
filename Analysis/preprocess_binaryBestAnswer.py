@@ -21,7 +21,7 @@ def main():
 
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
         # TODO: pre-processing: normalization
-        print "ciao"
+        logging.info('Processing....')
         # TODO: pre-processing: scaling
 
         # TODO: others?

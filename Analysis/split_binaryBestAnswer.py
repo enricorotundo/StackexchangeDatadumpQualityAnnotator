@@ -29,6 +29,7 @@ def main():
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
         logging.info('Dataset splitting: started.')
 
+
         df = ddf.read_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)
 
         # sequence of randomized partitions in which a subset of groups are held out for each split
@@ -59,7 +60,8 @@ def main():
         if not os.path.exists(settings.OUTPUT_PATH_DIR_SPLITTED):
             logging.info('Creating output directory in {}.'.format(settings.OUTPUT_PATH_DIR_SPLITTED))
             os.makedirs(settings.OUTPUT_PATH_DIR_SPLITTED)
-
+        
+        
         # clear output folder first
         filelist = glob.glob(settings.OUTPUT_PATH_DIR_SPLITTED + "*.csv")
         for f in filelist:
