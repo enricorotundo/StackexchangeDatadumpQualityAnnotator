@@ -38,11 +38,11 @@ def main():
         delayed_development = []
         delayed_evaluation = []
 
-        # assumes thread_id are correctly split over partitions
+        # assumes thread_id are correctly split over partitions (done in feats_extract step)
         for partition_index in xrange(df.npartitions):
             df_partition = df.get_partition(partition_index)
-            # 'thread_id' as groups
-            groups = df.get_partition(partition_index)['thread_id']
+            df_partition = df_partition.reset_index()  # necessary as thread_id is index
+            groups = df.get_partition(partition_index)['thread_id']  # 'thread_id' as groups
             # with n_splits=1, split returns only one generator, so .next()
             indexes_development, indexes_evaluation = splitter.split(df_partition, groups=groups).next()
             # create delayed objects lists

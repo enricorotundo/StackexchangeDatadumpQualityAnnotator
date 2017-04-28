@@ -37,16 +37,14 @@ def main():
         X_development = df_development \
             .drop('best_answer', axis=1) \
             .drop('thread_id', axis=1) \
-            .drop('Unnamed: 0', axis=1) \
-            .drop('Unnamed: 0.1', axis=1).compute()
+            .drop('index', axis=1).compute()
         y_development = df_development['best_answer'].compute()
         groups_development = df_development['thread_id'].compute()
 
         X_evaluation = df_evaluation \
             .drop('best_answer', axis=1) \
             .drop('thread_id', axis=1) \
-            .drop('Unnamed: 0', axis=1) \
-            .drop('Unnamed: 0.1', axis=1).compute()
+            .drop('index', axis=1).compute()
         y_evaluation = df_evaluation['best_answer'].compute()
 
         clf = RandomForestClassifier()

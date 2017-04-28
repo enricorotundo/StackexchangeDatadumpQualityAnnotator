@@ -142,8 +142,8 @@ def main():
 
             df = dataset.to_dataframe()
 
-            # TODO: make sure divisions/partitions take thread_id into account! Might need switching to PARQUET files
-            ##df = df.set_index('thread_id')
+            # make sure partitions take thread_id into account!
+            df = df.set_index('thread_id')
 
             # always use utf-8
             df.to_csv(settings.OUTPUT_PATH_DIR + 'features-*.csv', encoding=settings.ENCODING)
