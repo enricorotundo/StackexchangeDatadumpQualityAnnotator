@@ -5,7 +5,7 @@ Run this with: time python -m Analysis.feats_extract_binaryBestAnswer
 
 This script reads a src file containing threads with accepted answers.
 Each datapoint is flagged with 1 if it's a best/accepted answer, 0 otherwise.
-Output datapoints are grouped by thread.
+Output datapoints are indexed by thread_id.
 """
 
 import json

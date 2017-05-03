@@ -4,6 +4,7 @@
 Run this with: time python -m Analysis.split_binaryBestAnswer
 
 This script reads a feature matrix and splits it into a development and evaluation set.
+Expects datapoints indexed by thread_id, although that's not the case for the output. 
 
 http://scikit-learn.org/stable/modules/grid_search.html#model-selection-development-and-evaluation
 """
@@ -26,8 +27,9 @@ dask.set_options(get=dask.multiprocessing.get)
 
 
 def main():
+    logging.info('Dataset splitting: started.')
+
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
-        logging.info('Dataset splitting: started.')
 
         df = ddf.read_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)
 
@@ -69,7 +71,7 @@ def main():
         df_training.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv', encoding=settings.ENCODING)
         df_testing.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv', encoding=settings.ENCODING)
 
-        logging.info('Dataset splitting: completed.')
+    logging.info('Dataset splitting: completed.')
 
 if __name__ == "__main__":
     main()
