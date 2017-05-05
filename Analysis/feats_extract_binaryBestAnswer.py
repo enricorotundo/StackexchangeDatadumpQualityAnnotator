@@ -22,6 +22,7 @@ from dask import delayed
 
 from Analysis.Features import text_style
 from Utils import settings_binaryBestAnswer as settings
+from Utils.commons import prepare_folder
 
 logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 nltk.data.path.append('venv/nltk_data')
@@ -129,16 +130,8 @@ def main():
             # extract features, flatten result
             dataset = processed_threads.map(thread_extract).concat()  # dask.bag.core.Bag
 
-            # create output directory
-            if not os.path.exists(settings.OUTPUT_PATH_DIR):
-                logging.info('Creating output directory in {}.'.format(settings.OUTPUT_PATH_DIR))
-                os.makedirs(settings.OUTPUT_PATH_DIR)
-
-            # clear output folder first
-            filelist = glob.glob(settings.OUTPUT_PATH_DIR + "*.csv")
-            for f in filelist:
-                logging.info('Clearing output directory: {}.'.format(f))
-                os.remove(f)
+            # prepare output directory
+            prepare_folder(settings.OUTPUT_PATH_DIR)
 
             df = dataset.to_dataframe()
 

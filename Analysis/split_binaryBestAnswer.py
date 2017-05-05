@@ -21,6 +21,7 @@ from dask.diagnostics import ProgressBar
 
 from Analysis.Utils.delayed import selector
 from Utils import settings_binaryBestAnswer as settings
+from Utils.commons import prepare_folder
 
 logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 dask.set_options(get=dask.multiprocessing.get)
@@ -57,16 +58,8 @@ def main():
         df_testing = ddf.from_delayed(delayed_evaluation, meta=df)
         df_testing = df_testing.repartition(npartitions=settings.N_PARTITIONS)
 
-        # create output directory
-        if not os.path.exists(settings.OUTPUT_PATH_DIR_SPLITTED):
-            logging.info('Creating output directory in {}.'.format(settings.OUTPUT_PATH_DIR_SPLITTED))
-            os.makedirs(settings.OUTPUT_PATH_DIR_SPLITTED)
 
-        # clear output folder first
-        filelist = glob.glob(settings.OUTPUT_PATH_DIR_SPLITTED + "*.csv")
-        for f in filelist:
-            logging.info('Clearing output directory: {}.'.format(f))
-            os.remove(f)
+        prepare_folder(settings.OUTPUT_PATH_DIR_SPLITTED)
 
         df_training.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv', encoding=settings.ENCODING)
         df_testing.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv', encoding=settings.ENCODING)
