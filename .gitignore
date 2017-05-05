@@ -120,3 +120,4 @@ Analysis/Tasks/BestAnswer/plots/**/
 
 
 tagger.pkl
+Analysis/Libs/nltk_passive_voice/
