@@ -9,8 +9,6 @@ Output datapoints are indexed by thread_id.
 """
 
 import json
-import glob
-import os
 import logging
 
 from bs4 import BeautifulSoup
@@ -18,7 +16,6 @@ import nltk
 import dask.bag as db
 import dask.multiprocessing
 from dask.diagnostics import ProgressBar
-from dask import delayed
 
 from Analysis.Features import text_style
 from Utils import settings_binaryBestAnswer as settings
@@ -92,6 +89,7 @@ def thread_extract(thread):
         datapoint[f.__name__] = f(thread['accepted_answer_body_stripped'])
     datapoint['best_answer'] = 1
     datapoint['thread_id'] = thread['thread_id']
+    # TODO add features dell utente dal network
     thread_dataset.append(datapoint)
 
     # extract other_answers feats
@@ -101,6 +99,7 @@ def thread_extract(thread):
             datapoint[f.__name__] = f(answer)
         datapoint['best_answer'] = 0
         datapoint['thread_id'] = thread['thread_id']
+        # TODO add features dell utente dal network
         thread_dataset.append(datapoint)
     return thread_dataset
 

@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""
+This file clears the annotation columns of the remote databases.
+Run it with extreme care.
+"""
+
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 from ...models import *

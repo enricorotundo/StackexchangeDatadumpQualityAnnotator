@@ -63,7 +63,7 @@ def main():
         df_evaluation.to_csv(settings.OUTPUT_PATH_DIR_PREPROC + 'evaluation-*.csv', encoding=settings.ENCODING)
 
 
-        # plot boxplot for columns
+        # TODO plot boxplot for columns
 
         # TODO check for collinearity
         # http://onlinelibrary.wiley.com/doi/10.1890/08-0879.1/abstract

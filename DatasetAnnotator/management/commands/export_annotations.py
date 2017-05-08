@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+This script saves a backup of manual annotations into a CSV file.
+"""
+
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 from ...models import *

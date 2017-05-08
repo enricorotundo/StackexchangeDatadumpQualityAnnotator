@@ -117,6 +117,7 @@ Analysis/Tasks/BestAnswer/plots/**/
 **/*.json
 **/*.csv
 **/*.xml
+**/*.gexf
 
 
 tagger.pkl

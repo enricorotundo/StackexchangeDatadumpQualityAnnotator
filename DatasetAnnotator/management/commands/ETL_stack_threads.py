@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-DESCRIPTION:
+Run this with: time python manage.py ETL_stack_threads
 
 This script extract threads with a best/selected answer and load them into a JSON file.
 Works with StackExchange data dumps, highly inefficient ;-)
