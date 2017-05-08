@@ -21,7 +21,7 @@ from DatasetAnnotator.models import Posts
 # community selection
 db = 'travel'
 OUTPUT_PATH = 'Analysis/Data/' + db + '/'
-FILE_NAME = 'users_acceptedOnly_ansCountGte4.json'
+FILE_NAME = 'users_activity.json'
 
 class Command(BaseCommand):
     help = ''

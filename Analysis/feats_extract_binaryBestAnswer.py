@@ -16,6 +16,7 @@ import nltk
 import dask.bag as db
 import dask.multiprocessing
 from dask.diagnostics import ProgressBar
+import pandas as pd
 
 from Analysis.Features import text_style
 from Utils import settings_binaryBestAnswer as settings
@@ -24,6 +25,8 @@ from Utils.commons import prepare_folder
 logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 nltk.data.path.append('venv/nltk_data')
 dask.set_options(get=dask.multiprocessing.get)
+df_network_analysis = pd.read_csv(settings.DATA_DIR_PATH + '/network_analysis.csv', encoding=settings.ENCODING)
+df_users_activity = pd.read_json(settings.DATA_DIR_PATH + '/users_activity.json', orient='index', encoding=settings.ENCODING)
 
 # TODO add other funcs
 UNARY_FUNCS = [text_style.ty_cpc,
@@ -56,6 +59,9 @@ BINARY_FUNCS = []
 
 
 def load(thread):
+    """
+    Given a thread dict, it filters fields and add html-stripped body text.
+    """
     # read question
     question_body = thread['question']['body']
     question_body_stripped = BeautifulSoup(question_body, "html5lib").get_text()
@@ -68,38 +74,67 @@ def load(thread):
     other_answers_body = [answer['body'] for answer in thread['other_answers']]
     other_answers_body_stripped = [BeautifulSoup(answer_body, "html5lib").get_text()
                                    for answer_body in other_answers_body]
+    other_answers_users_ids = [answer['user'] for answer in thread['other_answers']]
 
     return {
         'thread_id': thread['thread_id'],
         'question_body': question_body,
         'question_body_stripped': question_body_stripped,
+        'question_user_id': thread['question']['user'],
         'accepted_answer_body': accepted_answer_body,
         'accepted_answer_body_stripped': accepted_answer_body_stripped,
+        'accepted_answer_user_id': thread['accepted_answer']['user'],
         'other_answers_body': other_answers_body,
-        'other_answers_body_stripped': other_answers_body_stripped
+        'other_answers_body_stripped': other_answers_body_stripped,
+        'other_answers_users_ids': other_answers_users_ids,
     }
 
 
 def thread_extract(thread):
+    """
+    Extracts features and returns a list of data-points for the given thread.  
+    """
     thread_dataset = []
 
     # extract accepted_answer feats
     datapoint = dict()
     for f in UNARY_FUNCS:
         datapoint[f.__name__] = f(thread['accepted_answer_body_stripped'])
+
+    # add network analysis
+    df_net_accepted_answer = df_network_analysis.iloc[thread['accepted_answer_user_id']]
+    for col_name, values in df_net_accepted_answer.iteritems():
+        datapoint[col_name] = values
+
+    # add user's activity features
+    df_user_activity_accepted_answer = df_users_activity.iloc[thread['accepted_answer_user_id']]
+    for col_name, values in df_user_activity_accepted_answer.iteritems():
+        datapoint[col_name] = values
+
     datapoint['best_answer'] = 1
     datapoint['thread_id'] = thread['thread_id']
-    # TODO add features dell utente dal network
+
     thread_dataset.append(datapoint)
 
     # extract other_answers feats
-    for answer in thread['other_answers_body_stripped']:
+    for answer, user_id in zip(thread['other_answers_body_stripped'], thread['other_answers_users_ids']):
         datapoint = dict()
         for f in UNARY_FUNCS:
             datapoint[f.__name__] = f(answer)
+
+        # add network features
+        df_net_answer = df_network_analysis.iloc[user_id]
+        for col_name, values in df_net_answer.iteritems():
+            datapoint[col_name] = values
+
+        # add user's activity features
+        df_user_activity_answer = df_users_activity.iloc[user_id]
+        for col_name, values in df_user_activity_answer.iteritems():
+            datapoint[col_name] = values
+
         datapoint['best_answer'] = 0
         datapoint['thread_id'] = thread['thread_id']
-        # TODO add features dell utente dal network
+
         thread_dataset.append(datapoint)
     return thread_dataset
 
@@ -116,7 +151,7 @@ def main():
 
             if settings.DRAFT_MODE:
                 logging.info('Draft mode enabled, using just a sampled dataset.')
-                data_list = data_list[:10]
+                data_list = data_list[:5]
             else:
                 logging.info('Draft mode disabled, using whole datasource.')
                 logging.debug(len(data_list))
