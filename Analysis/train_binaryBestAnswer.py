@@ -94,6 +94,7 @@ def main():
         def compute_metrics(df):
             return ndcg.ndcg_at_k(df['y_pred'], 1)
 
+        # FIXME df_predictions['thread_id'] contains NaNs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ndcg_list = df_predictions.groupby('thread_id').apply(compute_metrics, meta=('x', 'f8')).compute()
 
         logging.info('nDCG@1: {}'.format(ndcg_list.mean()))

@@ -75,18 +75,24 @@ def load(thread):
     other_answers_body_stripped = [BeautifulSoup(answer_body, "html5lib").get_text()
                                    for answer_body in other_answers_body]
     other_answers_users_ids = [answer['user'] for answer in thread['other_answers']]
+    other_answers_post_ids = [answer['post_id'] for answer in thread['other_answers']]
 
     return {
         'thread_id': thread['thread_id'],
         'question_body': question_body,
         'question_body_stripped': question_body_stripped,
         'question_user_id': thread['question']['user'],
+        'question_post_id': thread['question']['post_id'],
+
         'accepted_answer_body': accepted_answer_body,
         'accepted_answer_body_stripped': accepted_answer_body_stripped,
         'accepted_answer_user_id': thread['accepted_answer']['user'],
+        'accepted_answer_post_id': thread['accepted_answer']['post_id'],
+
         'other_answers_body': other_answers_body,
         'other_answers_body_stripped': other_answers_body_stripped,
         'other_answers_users_ids': other_answers_users_ids,
+        'other_answers_post_ids': other_answers_post_ids,
     }
 
 
@@ -96,12 +102,14 @@ def thread_extract(thread):
     """
     thread_dataset = []
 
-    # extract accepted_answer feats
+    # ACCEPTED ANSWER
+
+    # extract unary features
     datapoint = dict()
     for f in UNARY_FUNCS:
         datapoint[f.__name__] = f(thread['accepted_answer_body_stripped'])
 
-    # add network analysis
+    # add network analysis features
     df_net_accepted_answer = df_network_analysis.iloc[thread['accepted_answer_user_id']]
     for col_name, values in df_net_accepted_answer.iteritems():
         datapoint[col_name] = values
@@ -111,18 +119,26 @@ def thread_extract(thread):
     for col_name, values in df_user_activity_accepted_answer.iteritems():
         datapoint[col_name] = values
 
+    # add additional data
     datapoint['best_answer'] = 1
     datapoint['thread_id'] = thread['thread_id']
+    datapoint['post_id'] = thread['accepted_answer_post_id']
 
+    # append datapoint
     thread_dataset.append(datapoint)
 
-    # extract other_answers feats
-    for answer, user_id in zip(thread['other_answers_body_stripped'], thread['other_answers_users_ids']):
+    # OTHER ANSWERS FEATURES
+
+    for answer, user_id, post_id in zip(thread['other_answers_body_stripped'],
+                                        thread['other_answers_users_ids'],
+                                        thread['other_answers_post_ids']):
         datapoint = dict()
+
+        # extract unary features
         for f in UNARY_FUNCS:
             datapoint[f.__name__] = f(answer)
 
-        # add network features
+        # add network analysis features
         df_net_answer = df_network_analysis.iloc[user_id]
         for col_name, values in df_net_answer.iteritems():
             datapoint[col_name] = values
@@ -132,10 +148,14 @@ def thread_extract(thread):
         for col_name, values in df_user_activity_answer.iteritems():
             datapoint[col_name] = values
 
+        # add additional data
         datapoint['best_answer'] = 0
         datapoint['thread_id'] = thread['thread_id']
+        datapoint['post_id'] = post_id
 
+        # append datapoint
         thread_dataset.append(datapoint)
+
     return thread_dataset
 
 
@@ -144,7 +164,8 @@ def main():
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
 
         # list of delayed values
-        bag = db.read_text(settings.SRC_FILE_PATH).map(json.loads, encoding=settings.ENCODING)
+        bag = db.read_text(settings.SRC_FILE_PATH)\
+            .map(json.loads, encoding=settings.ENCODING)
 
         # bag has just one item!
         for data_list in bag:

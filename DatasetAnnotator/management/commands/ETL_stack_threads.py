@@ -69,6 +69,7 @@ class Command(BaseCommand):
                     'body': question.body,
                     'user': question.owneruserid,
                     'tags': question.tags,
+                    'post_id': question.id,
                 }
 
             a = []
@@ -78,6 +79,7 @@ class Command(BaseCommand):
                     a.append({
                         'body': answer.body,
                         'user': answer.owneruserid,
+                        'post_id': answer.id
                     })
             accepted_ans = answers.get(id=question.acceptedanswerid)
 
@@ -89,6 +91,7 @@ class Command(BaseCommand):
                 'accepted_answer': {
                     'body': accepted_ans.body,
                     'user': accepted_ans.owneruserid,
+                    'post_id': accepted_ans.id,
                 }
             })
 
