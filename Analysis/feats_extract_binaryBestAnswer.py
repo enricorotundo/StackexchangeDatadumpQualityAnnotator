@@ -115,58 +115,60 @@ def thread_extract(thread):
     thread_dataset = []
 
     # ACCEPTED ANSWER
-
-    # extract unary features
-    datapoint = dict()
-    for f in UNARY_FUNCS:
-        datapoint[f.__name__] = f(thread['accepted_answer_body_stripped'])
-
-    # add network analysis features
-    df_net_accepted_answer = df_network_analysis.loc[thread['accepted_answer_user_id']]  # use 'loc' not 'iloc'!
-    for col_name, values in df_net_accepted_answer.iteritems():
-        datapoint[col_name] = values
-
-    # add user's activity features
-    df_user_activity_accepted_answer = df_users_activity.loc[thread['accepted_answer_user_id']]  # use 'loc' not 'iloc'!
-    for col_name, values in df_user_activity_accepted_answer.iteritems():
-        datapoint[col_name] = values
-
-    # add additional data
-    datapoint['best_answer'] = 1
-    datapoint['thread_id'] = thread['thread_id']
-    datapoint['post_id'] = thread['accepted_answer_post_id']
-
-    # append datapoint
-    thread_dataset.append(datapoint)
-
-    # OTHER ANSWERS FEATURES
-
-    for answer, user_id, post_id in zip(thread['other_answers_body_stripped'],
-                                        thread['other_answers_users_ids'],
-                                        thread['other_answers_post_ids']):
-        datapoint = dict()
-
+    # ignore posts by 'null' users
+    if thread['accepted_answer_user_id']:
         # extract unary features
+        datapoint = dict()
         for f in UNARY_FUNCS:
-            datapoint[f.__name__] = f(answer)
+            datapoint[f.__name__] = f(thread['accepted_answer_body_stripped'])
 
         # add network analysis features
-        df_net_answer = df_network_analysis.loc[user_id]  # use 'loc' not 'iloc'!
-        for col_name, values in df_net_answer.iteritems():
+        df_net_accepted_answer = df_network_analysis.loc[thread['accepted_answer_user_id']]  # use 'loc' not 'iloc'!
+        for col_name, values in df_net_accepted_answer.iteritems():
             datapoint[col_name] = values
 
         # add user's activity features
-        df_user_activity_answer = df_users_activity.loc[user_id]  # use 'loc' not 'iloc'!
-        for col_name, values in df_user_activity_answer.iteritems():
+        df_user_activity_accepted_answer = df_users_activity.loc[thread['accepted_answer_user_id']]  # use 'loc' not 'iloc'!
+        for col_name, values in df_user_activity_accepted_answer.iteritems():
             datapoint[col_name] = values
 
         # add additional data
-        datapoint['best_answer'] = 0
+        datapoint['best_answer'] = 1
         datapoint['thread_id'] = thread['thread_id']
-        datapoint['post_id'] = post_id
+        datapoint['post_id'] = thread['accepted_answer_post_id']
 
         # append datapoint
         thread_dataset.append(datapoint)
+
+    # OTHER ANSWERS FEATURES
+    for answer, user_id, post_id in zip(thread['other_answers_body_stripped'],
+                                        thread['other_answers_users_ids'],
+                                        thread['other_answers_post_ids']):
+        # ignore posts by 'null' users
+        if user_id:
+            datapoint = dict()
+
+            # extract unary features
+            for f in UNARY_FUNCS:
+                datapoint[f.__name__] = f(answer)
+
+            # add network analysis features
+            df_net_answer = df_network_analysis.loc[user_id]  # use 'loc' not 'iloc'!
+            for col_name, values in df_net_answer.iteritems():
+                datapoint[col_name] = values
+
+            # add user's activity features
+            df_user_activity_answer = df_users_activity.loc[user_id]  # use 'loc' not 'iloc'!
+            for col_name, values in df_user_activity_answer.iteritems():
+                datapoint[col_name] = values
+
+            # add additional data
+            datapoint['best_answer'] = 0
+            datapoint['thread_id'] = thread['thread_id']
+            datapoint['post_id'] = post_id
+
+            # append datapoint
+            thread_dataset.append(datapoint)
 
     return thread_dataset
 
