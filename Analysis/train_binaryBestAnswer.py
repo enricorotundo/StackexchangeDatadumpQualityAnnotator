@@ -8,6 +8,7 @@ Evaluate over the evaluation set (unseen, left-out).
 """
 
 import logging
+import argparse
 
 import dask
 import dask.multiprocessing
@@ -17,7 +18,6 @@ import dask_searchcv
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GroupShuffleSplit
-from sklearn.model_selection import GridSearchCV
 from dask.diagnostics import ProgressBar
 
 from Metrics import ndcg
@@ -28,11 +28,24 @@ logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--draft', action='store_true')
+    args = parser.parse_args()
+
     logging.info('Training: started.')
 
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
-        df_development = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv', encoding=settings.ENCODING)
-        df_evaluation = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv', encoding=settings.ENCODING)
+
+        if args.draft:
+            df_development = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED_DRAFT + 'development-*.csv',
+                                          encoding=settings.ENCODING)
+            df_evaluation = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED_DRAFT + 'evaluation-*.csv',
+                                         encoding=settings.ENCODING)
+        else:
+            df_development = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv',
+                                          encoding=settings.ENCODING)
+            df_evaluation = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv',
+                                         encoding=settings.ENCODING)
 
         X_development = df_development \
             .drop('best_answer', axis=1) \

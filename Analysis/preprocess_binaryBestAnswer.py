@@ -8,14 +8,13 @@ Output datapoints are indexed by thread_id.
 """
 
 import logging
+import argparse
 
-import numpy as np
 import dask.multiprocessing
 from dask.diagnostics import ProgressBar
 import dask.dataframe as ddf
-from sklearn.preprocessing import StandardScaler, LabelBinarizer
+from sklearn.preprocessing import StandardScaler
 from sklearn_pandas import DataFrameMapper
-from sklearn.pipeline import Pipeline
 
 from Utils import settings_binaryBestAnswer as settings
 from Utils.commons import prepare_folder
@@ -23,12 +22,25 @@ from Utils.commons import prepare_folder
 dask.set_options(get=dask.multiprocessing.get)
 logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--draft', action='store_true')
+    args = parser.parse_args()
+
     logging.info('Pre-processing: started.')
 
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
-        df_development = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv', encoding=settings.ENCODING)
-        df_evaluation = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv', encoding=settings.ENCODING)
+        if args.draft:
+            df_development = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED_DRAFT + 'development-*.csv',
+                                          encoding=settings.ENCODING)
+            df_evaluation = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED_DRAFT + 'evaluation-*.csv',
+                                         encoding=settings.ENCODING)
+        else:
+            df_development = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv',
+                                          encoding=settings.ENCODING)
+            df_evaluation = ddf.read_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv',
+                                         encoding=settings.ENCODING)
 
         # get features columns names
         cols = []
@@ -48,20 +60,30 @@ def main():
             (['index'], None),
         ])
 
-
-        prepare_folder(settings.OUTPUT_PATH_DIR_PREPROC)
+        if args.draft:
+            prepare_folder(settings.OUTPUT_PATH_DIR_PREPROC_DRAFT)
+        else:
+            prepare_folder(settings.OUTPUT_PATH_DIR_PREPROC)
 
         # process development data
         dataset_development = mapper.fit_transform(df_development.compute())
         columns = [col for list in [tuple[0] for tuple in mapper.features] for col in list]
         df_development = ddf.from_array(dataset_development, columns=columns)
-        df_development.to_csv(settings.OUTPUT_PATH_DIR_PREPROC + 'development-*.csv', encoding=settings.ENCODING)
 
         # process evaluation data
         dataset_evaluation = mapper.transform(df_evaluation.compute())
         df_evaluation = ddf.from_array(dataset_evaluation, columns=columns)
-        df_evaluation.to_csv(settings.OUTPUT_PATH_DIR_PREPROC + 'evaluation-*.csv', encoding=settings.ENCODING)
 
+        if args.draft:
+            df_development.to_csv(settings.OUTPUT_PATH_DIR_PREPROC_DRAFT + 'development-*.csv',
+                                  encoding=settings.ENCODING)
+            df_evaluation.to_csv(settings.OUTPUT_PATH_DIR_PREPROC_DRAFT + 'evaluation-*.csv',
+                                 encoding=settings.ENCODING)
+        else:
+            df_development.to_csv(settings.OUTPUT_PATH_DIR_PREPROC + 'development-*.csv',
+                                  encoding=settings.ENCODING)
+            df_evaluation.to_csv(settings.OUTPUT_PATH_DIR_PREPROC + 'evaluation-*.csv',
+                                 encoding=settings.ENCODING)
 
         # TODO plot boxplot for columns
 

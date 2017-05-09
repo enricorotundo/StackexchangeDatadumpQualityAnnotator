@@ -10,7 +10,9 @@ Output datapoints are indexed by thread_id.
 
 import json
 import logging
+import argparse
 
+import numpy as np
 from bs4 import BeautifulSoup
 import nltk
 import dask.bag as db
@@ -25,8 +27,18 @@ from Utils.commons import prepare_folder
 logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 nltk.data.path.append('venv/nltk_data')
 dask.set_options(get=dask.multiprocessing.get)
+
+# prepare network analysis data
 df_network_analysis = pd.read_csv(settings.DATA_DIR_PATH + '/network_analysis.csv', encoding=settings.ENCODING)
-df_users_activity = pd.read_json(settings.DATA_DIR_PATH + '/users_activity.json', orient='index', encoding=settings.ENCODING)
+df_network_analysis.set_index('Unnamed: 0', inplace=True)  # indexes must be the one in the CSV (ie. user_ids)
+
+# prepare users activity data
+df_users_activity = pd.read_json(settings.DATA_DIR_PATH + '/users_activity.json', orient='index',
+                                 encoding=settings.ENCODING)
+df_users_activity.sort_index(inplace=True)
+df_users_activity = df_users_activity[:-1]  # get rid of the 'null' user so can convert index to int64
+df_users_activity.index = df_users_activity.index.astype(np.int64)  # indexes are user_ids
+
 
 # TODO add other funcs
 UNARY_FUNCS = [text_style.ty_cpc,
@@ -110,12 +122,12 @@ def thread_extract(thread):
         datapoint[f.__name__] = f(thread['accepted_answer_body_stripped'])
 
     # add network analysis features
-    df_net_accepted_answer = df_network_analysis.iloc[thread['accepted_answer_user_id']]
+    df_net_accepted_answer = df_network_analysis.loc[thread['accepted_answer_user_id']]  # use 'loc' not 'iloc'!
     for col_name, values in df_net_accepted_answer.iteritems():
         datapoint[col_name] = values
 
     # add user's activity features
-    df_user_activity_accepted_answer = df_users_activity.iloc[thread['accepted_answer_user_id']]
+    df_user_activity_accepted_answer = df_users_activity.loc[thread['accepted_answer_user_id']]  # use 'loc' not 'iloc'!
     for col_name, values in df_user_activity_accepted_answer.iteritems():
         datapoint[col_name] = values
 
@@ -139,12 +151,12 @@ def thread_extract(thread):
             datapoint[f.__name__] = f(answer)
 
         # add network analysis features
-        df_net_answer = df_network_analysis.iloc[user_id]
+        df_net_answer = df_network_analysis.loc[user_id]  # use 'loc' not 'iloc'!
         for col_name, values in df_net_answer.iteritems():
             datapoint[col_name] = values
 
         # add user's activity features
-        df_user_activity_answer = df_users_activity.iloc[user_id]
+        df_user_activity_answer = df_users_activity.loc[user_id]  # use 'loc' not 'iloc'!
         for col_name, values in df_user_activity_answer.iteritems():
             datapoint[col_name] = values
 
@@ -160,6 +172,11 @@ def thread_extract(thread):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--draft', action='store_true')
+    parser.add_argument('--n_partitions', type=int)
+    args = parser.parse_args()
+
     logging.info('Features extraction: started.')
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
 
@@ -170,14 +187,14 @@ def main():
         # bag has just one item!
         for data_list in bag:
 
-            if settings.DRAFT_MODE:
+            if args.draft:
                 logging.info('Draft mode enabled, using just a sampled dataset.')
-                data_list = data_list[:5]
+                data_list = data_list[:5]  # get only some threads
             else:
                 logging.info('Draft mode disabled, using whole datasource.')
                 logging.debug(len(data_list))
 
-            threads = db.from_sequence(data_list, npartitions=settings.N_PARTITIONS)
+            threads = db.from_sequence(data_list, npartitions=args.n_partitions)
 
             # extract text without html tags
             processed_threads = threads.map(load)
@@ -186,7 +203,10 @@ def main():
             dataset = processed_threads.map(thread_extract).concat()  # dask.bag.core.Bag
 
             # prepare output directory
-            prepare_folder(settings.OUTPUT_PATH_DIR)
+            if args.draft:
+                prepare_folder(settings.OUTPUT_PATH_DIR_DRAFT)
+            else:
+                prepare_folder(settings.OUTPUT_PATH_DIR)
 
             df = dataset.to_dataframe()
 
@@ -194,10 +214,12 @@ def main():
             df = df.set_index('thread_id')
 
             # always use utf-8
-            df.to_csv(settings.OUTPUT_PATH_DIR + 'features-*.csv', encoding=settings.ENCODING)
+            if args.draft:
+                df.to_csv(settings.OUTPUT_PATH_DIR_DRAFT + 'features-*.csv', encoding=settings.ENCODING)
+            else:
+                df.to_csv(settings.OUTPUT_PATH_DIR + 'features-*.csv', encoding=settings.ENCODING)
 
         logging.info('Features extraction: completed.')
-
 
 if __name__ == "__main__":
     main()

@@ -9,9 +9,8 @@ Expects datapoints indexed by thread_id, although that's not the case for the ou
 http://scikit-learn.org/stable/modules/grid_search.html#model-selection-development-and-evaluation
 """
 
-import glob
-import os
 import logging
+import argparse
 
 import dask.dataframe as ddf
 import dask.multiprocessing
@@ -28,11 +27,19 @@ dask.set_options(get=dask.multiprocessing.get)
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--draft', action='store_true')
+    parser.add_argument('--n_partitions', type=int)
+    args = parser.parse_args()
+
     logging.info('Dataset splitting: started.')
 
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
 
-        df = ddf.read_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)
+        if args.draft:
+            df = ddf.read_csv(settings.OUTPUT_PATH_DIR_DRAFT + '*.csv', encoding=settings.ENCODING)
+        else:
+            df = ddf.read_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)
 
         # sequence of randomized partitions in which a subset of groups are held out for each split
         splitter = GroupShuffleSplit(n_splits=1, train_size=settings.TRAIN_SIZE, random_state=settings.RND_SEED)
@@ -54,15 +61,18 @@ def main():
 
         # from delayed -> DataFrame
         df_training = ddf.from_delayed(delayed_development, meta=df)
-        df_training = df_training.repartition(npartitions=settings.N_PARTITIONS)
+        df_training = df_training.repartition(npartitions=args.n_partitions)
         df_testing = ddf.from_delayed(delayed_evaluation, meta=df)
-        df_testing = df_testing.repartition(npartitions=settings.N_PARTITIONS)
+        df_testing = df_testing.repartition(npartitions=args.n_partitions)
 
-
-        prepare_folder(settings.OUTPUT_PATH_DIR_SPLITTED)
-
-        df_training.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv', encoding=settings.ENCODING)
-        df_testing.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv', encoding=settings.ENCODING)
+        if args.draft:
+            prepare_folder(settings.OUTPUT_PATH_DIR_SPLITTED_DRAFT)
+            df_training.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED_DRAFT + 'development-*.csv', encoding=settings.ENCODING)
+            df_testing.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED_DRAFT + 'evaluation-*.csv', encoding=settings.ENCODING)
+        else:
+            prepare_folder(settings.OUTPUT_PATH_DIR_SPLITTED)
+            df_training.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv', encoding=settings.ENCODING)
+            df_testing.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv', encoding=settings.ENCODING)
 
     logging.info('Dataset splitting: completed.')
 
