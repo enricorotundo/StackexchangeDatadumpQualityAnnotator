@@ -14,7 +14,7 @@ source venv/bin/activate &&
 #python manage.py ETL_stack_CBEN_network &&
 #python manage.py ETL_stack_users &&
 
-N_PARTITIONS=8
+N_PARTITIONS=4
 
 python -m Analysis.feats_extract_binaryBestAnswer --n_partitions ${N_PARTITIONS} &&
 python -m Analysis.split_binaryBestAnswer --n_partitions ${N_PARTITIONS} &&

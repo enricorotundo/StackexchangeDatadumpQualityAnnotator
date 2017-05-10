@@ -5,7 +5,8 @@ import logging
 DB = 'travel'
 TASK_NAME = 'binaryBestAnswer'
 DATA_DIR_PATH = 'Analysis/Data/' + DB
-SRC_FILE_NAME = 'threads_acceptedOnly_ansCountGte4.json'
+#SRC_FILE_NAME = 'threads_acceptedOnly_ansCountGte4.json'
+SRC_FILE_NAME = 'threads_acceptedOnly_all.json'
 SRC_FILE_PATH = DATA_DIR_PATH + '/' + SRC_FILE_NAME
 OUTPUT_PATH_DIR = DATA_DIR_PATH + '/features_{}_{}/'.format(SRC_FILE_NAME.split(".")[0], TASK_NAME)
 OUTPUT_PATH_DIR_DRAFT = DATA_DIR_PATH + '/features_{}_{}_draft/'.format(SRC_FILE_NAME.split(".")[0], TASK_NAME)
