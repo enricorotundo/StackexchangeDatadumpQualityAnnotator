@@ -56,10 +56,15 @@ def main():
         logging.info('Meta columns: {}'.format(meta_cols))
         logging.info('IV cols: {}'.format(sorted(cols)))
 
-        # TODO print some data, use "bokeh.io save plot"
+        logging.info('Attempting plot of raw data.')
+        if args.plot:
+            logging.info('Plot mode: Enabled. It might take a while.')
+            # TODO print some data, use "bokeh.io save plot"
 
-        # pre-processing: scaling (http://www.faqs.org/faqs/ai-faq/neural-nets/part2/section-16.html)
-        # TODO consider sklearn.preprocessing.RobustScaler for outliers!!!!!
+            # pre-processing: scaling (http://www.faqs.org/faqs/ai-faq/neural-nets/part2/section-16.html)
+            # TODO consider sklearn.preprocessing.RobustScaler for outliers!!!!!
+        else:
+            logging.info('Plot mode: Disabled... This should save you time.')
 
         mapper = DataFrameMapper([
             (cols, StandardScaler(copy=False)),
@@ -90,6 +95,7 @@ def main():
             df_evaluation.to_csv(settings.OUTPUT_PATH_DIR_PREPROC + 'evaluation-*.csv',
                                  encoding=settings.ENCODING)
 
+        logging.info('Attempting plot of processed data.')
         if args.plot:
             logging.info('Plot mode: Enabled. It might take a while.')
             # TODO plot boxplot for columns
