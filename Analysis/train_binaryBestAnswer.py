@@ -28,7 +28,7 @@ from Utils.commons import prepare_folder
 
 dask.set_options(get=dask.multiprocessing.get)
 logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
-
+pd.set_option('display.max_columns', None)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -40,17 +40,17 @@ def main():
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
 
         if args.draft:
+            logging.info('Draft mode: ENABLED.')
             df_development = ddf.read_csv(settings.OUTPUT_PATH_DIR_PREPROC_DRAFT + 'development-*.csv',
                                           encoding=settings.ENCODING)
             df_evaluation = ddf.read_csv(settings.OUTPUT_PATH_DIR_PREPROC_DRAFT + 'evaluation-*.csv',
                                          encoding=settings.ENCODING)
         else:
+            logging.info('Draft mode: DISABLED.')
             df_development = ddf.read_csv(settings.OUTPUT_PATH_DIR_PREPROC + 'development-*.csv',
                                           encoding=settings.ENCODING)
             df_evaluation = ddf.read_csv(settings.OUTPUT_PATH_DIR_PREPROC + 'evaluation-*.csv',
                                          encoding=settings.ENCODING)
-
-        logging.info(pprint.pprint(sorted(df_development.columns)))
 
         X_development = df_development \
             .drop('best_answer', axis=1) \
@@ -70,6 +70,18 @@ def main():
             .drop('Unnamed: 0.1', axis=1) \
             .drop('index', axis=1).compute()
         y_evaluation = df_evaluation['best_answer'].compute()
+        groups_evaluation = df_evaluation['thread_id'].compute()
+
+        # print sanity checks
+        logging.info('*******************************************************************************')
+        logging.info('Sanity check for: df_development')
+        logging.info(pprint.pformat(df_development.head()))
+        logging.info('*******************************************************************************')
+        logging.info('Sanity check for: df_evaluation')
+        logging.info(pprint.pformat(df_evaluation.head()))
+        logging.info('*******************************************************************************')
+        logging.info('Make sure there are only IV columns:')
+        logging.info(pprint.pformat(pprint.pformat(sorted(X_development.columns))))
 
         clf = RandomForestClassifier()
         pipeline = Pipeline([('random_forest', clf)])
@@ -91,9 +103,8 @@ def main():
                       'random_forest__n_jobs': [-1]
                       }
 
-        # make sure to pass same params as in split_binaryBestAnswer
-        splitter = GroupShuffleSplit(n_splits=1, train_size=0.7, random_state=settings.RND_SEED)
-        split_cv = splitter.split(X_development, groups=df_development['thread_id'])
+        splitter = GroupShuffleSplit(n_splits=1, train_size=settings.TRAIN_SIZE, random_state=settings.RND_SEED)
+        split_cv = splitter.split(X_development, groups=groups_development)
 
         # dask's GridSearchCV
         cv = dask_searchcv.GridSearchCV(pipeline, cv=split_cv, param_grid=parameters, scheduler='multiprocessing')
@@ -104,18 +115,16 @@ def main():
         cv.fit(X_development, y_development, groups=groups_development)
 
         # predict the evaluation set and check it's score
-        y_predictions = ddf.from_array(cv.predict(X_evaluation))
-
-        # align divisions
-        groups = df_development['thread_id']
-        y_evaluation.divisions = y_predictions.divisions
-        groups.divisions = y_predictions.divisions
+        y_predictions = cv.predict(X_evaluation)
 
         # put all together
-        df_predictions = dask.dataframe.concat([y_evaluation, y_predictions, groups], axis=1)
-        df_predictions.columns = ['y_true', 'y_pred', 'thread_id']
+        df_predictions = pd.DataFrame.from_records({'y_true': y_evaluation,
+                                                    'y_pred': y_predictions,
+                                                    'thread_id': groups_evaluation,
+                                                    'post_id': df_evaluation['post_id'].compute()})
 
-        # TODO print more predictions
+        logging.info("Here's your predictions:" )
+        logging.info(pprint.pformat(df_predictions.head()))
 
         def compute_metrics(df):
             # TODO check this
@@ -123,16 +132,16 @@ def main():
 
         # FIXME df_predictions['thread_id'] contains NaNs
         # FIXME dask.async.ValueError: cannot reindex from a duplicate axis
-        ndcg_list = df_predictions.groupby('thread_id').apply(compute_metrics, meta=('x', 'f8')).compute()
+        ndcg_list = df_predictions.groupby('thread_id').apply(compute_metrics)
 
         # save predictions
         if args.draft:
             prepare_folder(settings.OUTPUT_PATH_DIR_PREDICTIONS_DRAFT)
-            df_predictions.compute().to_csv(settings.OUTPUT_PATH_DIR_PREDICTIONS_DRAFT + 'predictions.csv',
+            df_predictions.to_csv(settings.OUTPUT_PATH_DIR_PREDICTIONS_DRAFT + 'predictions.csv',
                                             encoding=settings.ENCODING)
         else:
             prepare_folder(settings.OUTPUT_PATH_DIR_PREDICTIONS)
-            df_predictions.compute().to_csv(settings.OUTPUT_PATH_DIR_PREDICTIONS + 'predictions.csv',
+            df_predictions.to_csv(settings.OUTPUT_PATH_DIR_PREDICTIONS + 'predictions.csv',
                                             encoding=settings.ENCODING)
 
         logging.info('nDCG@1: {}'.format(ndcg_list.mean()))

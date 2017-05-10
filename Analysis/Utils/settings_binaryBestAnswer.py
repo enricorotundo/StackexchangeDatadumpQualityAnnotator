@@ -6,9 +6,9 @@ DB = 'travel'
 TASK_NAME = 'binaryBestAnswer'
 DATA_DIR_PATH = 'Analysis/Data/' + DB
 SRC_FILE_NAME = 'threads_acceptedOnly_ansCountGte4.json'
+#SRC_FILE_NAME = 'threads_acceptedOnly_all.json'
 
 # JSON src file
-#SRC_FILE_NAME = 'threads_acceptedOnly_all.json'
 SRC_FILE_PATH = DATA_DIR_PATH + '/' + SRC_FILE_NAME
 
 # features

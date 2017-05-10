@@ -37,8 +37,10 @@ def main():
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
 
         if args.draft:
+            logging.info('Draft mode: Enabled... Opening {}'.format(settings.OUTPUT_PATH_DIR_DRAFT + '*.csv'))
             df = ddf.read_csv(settings.OUTPUT_PATH_DIR_DRAFT + '*.csv', encoding=settings.ENCODING)
         else:
+            logging.info('Draft mode: Disabled... Opening {}'.format(settings.OUTPUT_PATH_DIR + '*.csv'))
             df = ddf.read_csv(settings.OUTPUT_PATH_DIR + '*.csv', encoding=settings.ENCODING)
 
         # sequence of randomized partitions in which a subset of groups are held out for each split
@@ -48,8 +50,9 @@ def main():
         delayed_development = []
         delayed_evaluation = []
 
-        # assumes thread_id are correctly split over partitions (done in feats_extract step)
+        # assumes thread_id are correctly split over partitions (assured by feats_extract step!)
         for partition_index in xrange(df.npartitions):
+            logging.info('Processing partition {}/{}'.format(partition_index+1, df.npartitions))
             df_partition = df.get_partition(partition_index)
             df_partition = df_partition.reset_index()  # necessary as thread_id is index
             groups = df.get_partition(partition_index)['thread_id']  # 'thread_id' as groups
@@ -67,10 +70,12 @@ def main():
 
         if args.draft:
             prepare_folder(settings.OUTPUT_PATH_DIR_SPLITTED_DRAFT)
+            logging.info('Draft mode: Enabled... Saving in {}'.format(settings.OUTPUT_PATH_DIR_SPLITTED_DRAFT))
             df_training.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED_DRAFT + 'development-*.csv', encoding=settings.ENCODING)
             df_testing.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED_DRAFT + 'evaluation-*.csv', encoding=settings.ENCODING)
         else:
             prepare_folder(settings.OUTPUT_PATH_DIR_SPLITTED)
+            logging.info('Draft mode: Disabled... Saving in {}'.format(settings.OUTPUT_PATH_DIR_SPLITTED))
             df_training.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'development-*.csv', encoding=settings.ENCODING)
             df_testing.to_csv(settings.OUTPUT_PATH_DIR_SPLITTED + 'evaluation-*.csv', encoding=settings.ENCODING)
 
