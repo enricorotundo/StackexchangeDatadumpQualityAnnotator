@@ -18,5 +18,5 @@ N_PARTITIONS=4
 
 python -m Analysis.feats_extract_binaryBestAnswer --n_partitions ${N_PARTITIONS} &&
 python -m Analysis.split_binaryBestAnswer --n_partitions ${N_PARTITIONS} &&
-python -m Analysis.preprocess_binaryBestAnswer &&
+python -m Analysis.preprocess_binaryBestAnswer --scaler robust &&
 python -m Analysis.train_binaryBestAnswer

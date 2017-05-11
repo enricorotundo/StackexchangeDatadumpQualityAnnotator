@@ -119,6 +119,7 @@ Analysis/Tasks/BestAnswer/plots/**/
 **/*.xml
 **/*.gexf
 **/*.graphml
+**/*.html
 
 tagger.pkl
 Analysis/Libs/nltk_passive_voice/

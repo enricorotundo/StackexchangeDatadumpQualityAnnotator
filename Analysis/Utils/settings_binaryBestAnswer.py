@@ -27,6 +27,10 @@ OUTPUT_PATH_DIR_PREPROC_DRAFT = DATA_DIR_PATH + '/preprocessed_{}_{}_draft/'.for
 OUTPUT_PATH_DIR_PREDICTIONS = DATA_DIR_PATH + '/predictions_{}_{}/'.format(SRC_FILE_NAME.split(".")[0], TASK_NAME)
 OUTPUT_PATH_DIR_PREDICTIONS_DRAFT = DATA_DIR_PATH + '/predictions_{}_{}_draft/'.format(SRC_FILE_NAME.split(".")[0], TASK_NAME)
 
+# plots
+OUTPUT_PATH_DIR_PLOTS = DATA_DIR_PATH + '/plots_{}_{}/'.format(SRC_FILE_NAME.split(".")[0], TASK_NAME)
+OUTPUT_PATH_DIR_PLOTS_DRAFT = DATA_DIR_PATH + '/plots_{}_{}_draft/'.format(SRC_FILE_NAME.split(".")[0], TASK_NAME)
+
 OUTPUT_PATH_DIR_AA_DATASET = DATA_DIR_PATH + '/AA_annotated_dataset/'
 ANNOTATION_CSV = DATA_DIR_PATH + '/' + 'travel_Posts_2017-04-04T09-06-50.604474_sheetV4.csv'
 ENCODING = 'utf-8'
