@@ -21,23 +21,10 @@ from dask.diagnostics import ProgressBar
 import pandas as pd
 
 from Analysis.Features import text_style
-from Utils import settings_binaryBestAnswer as settings
+from Utils.settings import Settings
 from Utils.commons import prepare_folder
 
-logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
-nltk.data.path.append('venv/nltk_data')
-dask.set_options(get=dask.multiprocessing.get)
 
-# prepare network analysis data
-df_network_analysis = pd.read_csv(settings.DATA_DIR_PATH + '/network_analysis.csv', encoding=settings.ENCODING)
-df_network_analysis.set_index('Unnamed: 0', inplace=True)  # indexes must be the one in the CSV (ie. user_ids)
-
-# prepare users activity data
-df_users_activity = pd.read_json(settings.DATA_DIR_PATH + '/users_activity.json', orient='index',
-                                 encoding=settings.ENCODING)
-df_users_activity.sort_index(inplace=True)
-df_users_activity = df_users_activity[:-1]  # get rid of the 'null' user so can convert index to int64
-df_users_activity.index = df_users_activity.index.astype(np.int64)  # indexes are user_ids
 
 
 # TODO add other funcs
@@ -177,7 +164,29 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--draft', action='store_true')
     parser.add_argument('--n_partitions', type=int)
+    parser.add_argument('--db', type=str, required=True)
+    parser.add_argument('--task_name', type=str, required=True)
+    parser.add_argument('--src_file_name', type=str, required=True)
     args = parser.parse_args()
+
+    settings = Settings(args.db, args.task_name, args.src_file_name)
+
+    logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
+    nltk.data.path.append('venv/nltk_data')
+    dask.set_options(get=dask.multiprocessing.get)
+
+    # prepare network analysis data
+    global df_network_analysis
+    df_network_analysis = pd.read_csv(settings.DATA_DIR_PATH + '/network_analysis.csv', encoding=settings.ENCODING)
+    df_network_analysis.set_index('Unnamed: 0', inplace=True)  # indexes must be the one in the CSV (ie. user_ids)
+
+    # prepare users activity data
+    global df_users_activity
+    df_users_activity = pd.read_json(settings.DATA_DIR_PATH + '/users_activity.json', orient='index',
+                                     encoding=settings.ENCODING)
+    df_users_activity.sort_index(inplace=True)
+    df_users_activity = df_users_activity[:-1]  # get rid of the 'null' user so can convert index to int64
+    df_users_activity.index = df_users_activity.index.astype(np.int64)  # indexes are user_ids
 
     logging.info('Features extraction: started.')
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):

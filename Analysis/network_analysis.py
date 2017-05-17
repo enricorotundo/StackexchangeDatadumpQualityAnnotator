@@ -12,7 +12,7 @@ import logging
 import networkx as nx
 import pandas as pd
 
-from Utils import settings_binaryBestAnswer as settings
+from Utils import settings as settings
 
 logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 

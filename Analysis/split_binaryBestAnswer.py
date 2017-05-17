@@ -19,18 +19,22 @@ from sklearn.model_selection import GroupShuffleSplit
 from dask.diagnostics import ProgressBar
 
 from Analysis.Utils.delayed import selector
-from Utils import settings_binaryBestAnswer as settings
+from Utils.settings import Settings
 from Utils.commons import prepare_folder
-
-logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
-dask.set_options(get=dask.multiprocessing.get)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--draft', action='store_true')
     parser.add_argument('--n_partitions', type=int)
+    parser.add_argument('--db', type=str, required=True)
+    parser.add_argument('--task_name', type=str, required=True)
+    parser.add_argument('--src_file_name', type=str, required=True)
     args = parser.parse_args()
+    settings = Settings(args.db, args.task_name, args.src_file_name)
+
+    logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
+    dask.set_options(get=dask.multiprocessing.get)
 
     logging.info('Dataset splitting: started.')
 

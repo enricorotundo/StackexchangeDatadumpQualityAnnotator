@@ -9,7 +9,7 @@ This script reads a features file and manual annotation file and produces a data
 import pandas as pd
 import dask.dataframe as ddf
 
-from Utils import settings_binaryBestAnswer as settings
+from Utils import settings as settings
 from Utils.commons import prepare_folder
 
 

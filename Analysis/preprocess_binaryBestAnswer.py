@@ -18,11 +18,8 @@ from sklearn_pandas import DataFrameMapper
 from bokeh.charts import Histogram, BoxPlot, output_file, show, save
 import pandas as pd
 
-from Utils import settings_binaryBestAnswer as settings
+from Utils.settings import Settings
 from Utils.commons import prepare_folder
-
-dask.set_options(get=dask.multiprocessing.get)
-logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 
 
 def main():
@@ -30,7 +27,15 @@ def main():
     parser.add_argument('--draft', action='store_true')
     parser.add_argument('--plot', action='store_true')
     parser.add_argument('--scaler', default='standard', choices=['standard', 'robust'])
+    parser.add_argument('--db', type=str, required=True)
+    parser.add_argument('--task_name', type=str, required=True)
+    parser.add_argument('--src_file_name', type=str, required=True)
     args = parser.parse_args()
+
+    settings = Settings(args.db, args.task_name, args.src_file_name)
+
+    dask.set_options(get=dask.multiprocessing.get)
+    logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 
     logging.info('Pre-processing: started.')
 
