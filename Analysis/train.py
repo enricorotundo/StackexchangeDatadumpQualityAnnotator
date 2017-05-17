@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Run this with: time python -m Analysis.train_binaryBestAnswer
+Run this with: time python -m Analysis.train
 
 Train a model on the development set (used in cross-validation).
 Evaluate over the evaluation set (unseen, left-out).

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Run this with: time python -m Analysis.feats_extract_binaryBestAnswer
+Run this with: time python -m Analysis.feats_extract
 
 This script reads a src file containing threads with accepted answers.
 Each datapoint is flagged with 1 if it's a best/accepted answer, 0 otherwise.

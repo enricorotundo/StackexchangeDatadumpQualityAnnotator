@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Run this with: time python -m Analysis.split_binaryBestAnswer
+Run this with: time python -m Analysis.split
 
 This script reads a feature matrix and splits it into a development and evaluation set.
 Expects datapoints indexed by thread_id, although that's not the case for the output. 

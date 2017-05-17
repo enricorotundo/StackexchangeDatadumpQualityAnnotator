@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Run this with: time python -m Analysis.preprocess_binaryBestAnswer
+Run this with: time python -m Analysis.preprocess
 
 This script reads a feature matrix and pre-process it.
 Output datapoints are indexed by thread_id.

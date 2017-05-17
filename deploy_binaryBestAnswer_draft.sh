@@ -19,7 +19,7 @@ DB='travel'
 TASK_NAME='binaryBestAnswer'
 SRC_FILE_NAME='threads_acceptedOnly_ansCountGte4.json'
 
-python -m Analysis.feats_extract_binaryBestAnswer --draft --n_partitions ${N_PARTITIONS} --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
-python -m Analysis.split_binaryBestAnswer --draft --n_partitions ${N_PARTITIONS} --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
-python -m Analysis.preprocess_binaryBestAnswer --draft --scaler robust --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
-python -m Analysis.train_binaryBestAnswer --draft --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME}
+python -m Analysis.feats_extract --draft --n_partitions ${N_PARTITIONS} --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
+python -m Analysis.split --draft --n_partitions ${N_PARTITIONS} --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
+python -m Analysis.preprocess --draft --scaler robust --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
+python -m Analysis.train --draft --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME}
