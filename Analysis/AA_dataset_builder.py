@@ -4,24 +4,28 @@
 Run this with: time python -m Analysis.AA_dataset_builder
 
 This script reads a features file and manual annotation file and produces a dataset.
+NOTE: needs features extracted from 'threads_all_all.json' which is the whole dataset posts+answers, even
+those threads without any best_answer.
 """
 
 import pandas as pd
 import dask.dataframe as ddf
 
-from Utils import settings as settings
+from Utils.settings import Settings
 from Utils.commons import prepare_folder
 
 
 def main():
+    settings = Settings(DB='travel', TASK_NAME='binaryBestAnswer', SRC_FILE_NAME='threads_all_all.json')
+
     # not the draft!
-    df_feats = ddf.read_csv('Analysis/Data/travel/features_threads_acceptedOnly_all_binaryBestAnswer/' + 'features-*.csv', encoding=settings.ENCODING)
+    df_feats = ddf.read_csv('Analysis/Data/travel/features_threads_all_all_binaryBestAnswer/' + 'features-*.csv', encoding=settings.ENCODING)
     df_ann = pd.read_csv(settings.ANNOTATION_CSV, encoding=settings.ENCODING)
 
     df_feats = df_feats.compute()
 
     ##############
-    # FIXME this script need features of acceptedOnly_all!
+    # NOTE this script need features from threads_all_all.json!
     print df_feats[df_feats['post_id'] == 1454]
     print "*****************************************************************************"
     print df_feats[df_feats['post_id'] == 1505]

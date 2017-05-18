@@ -22,13 +22,13 @@ from DatasetAnnotator.models import *
 db = 'travel'
 OUTPUT_PATH = 'Analysis/Data/' + db + '/'
 #FILE_NAME = 'threads_acceptedOnly_ansCountGte4.json'
-FILE_NAME = 'threads_acceptedOnly_all.json'
+#FILE_NAME = 'threads_acceptedOnly_all.json'
+FILE_NAME = 'threads_all_all.json'
 
 class Command(BaseCommand):
     help = ''
 
     def handle(self, *args, **options):
-
         """
         FILE_NAME naming schema, _ separated:
             * threads
@@ -45,9 +45,13 @@ class Command(BaseCommand):
                 .filter(acceptedanswerid__isnull=False) \
                 .filter(answercount__gte=2)
         elif FILE_NAME == 'threads_acceptedOnly_ansCountGte4.json':
+            # this filtering is used in most of the papers
             questions = Posts.objects.using(db).filter(posttypeid=1) \
                 .filter(acceptedanswerid__isnull=False) \
                 .filter(answercount__gte=4)
+        elif FILE_NAME == 'threads_all_all.json':
+            # this is for AA_dataset_builder
+            questions = Posts.objects.using(db).filter(posttypeid=1)
 
         all_answers = Posts.objects.using(db).filter(posttypeid=2)
 
@@ -82,19 +86,29 @@ class Command(BaseCommand):
                         'user': answer.owneruserid,
                         'post_id': answer.id
                     })
-            accepted_ans = answers.get(id=question.acceptedanswerid)
 
-            # buidling item
-            threads.append({
-                'thread_id': question.id,
-                'question': q,
-                'other_answers': a,
-                'accepted_answer': {
-                    'body': accepted_ans.body,
-                    'user': accepted_ans.owneruserid,
-                    'post_id': accepted_ans.id,
-                }
-            })
+            try:
+                # fails if there's no accepted answer
+                accepted_ans = answers.get(id=question.acceptedanswerid)
+
+                # buidling item
+                threads.append({
+                    'thread_id': question.id,
+                    'question': q,
+                    'other_answers': a,
+                    'accepted_answer': {
+                        'body': accepted_ans.body,
+                        'user': accepted_ans.owneruserid,
+                        'post_id': accepted_ans.id,
+                    }
+                })
+            except:
+                # buidling item
+                threads.append({
+                    'thread_id': question.id,
+                    'question': q,
+                    'other_answers': a,
+                })
 
 
         print 'Sample thread: \n{}'.format(threads[0])
