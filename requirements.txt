@@ -82,6 +82,7 @@ partd==0.3.7
 path.py==8.1.2
 pathlib2==2.2.1
 patsy==0.4.1
+pbr==3.0.1
 pexpect==4.2.1
 pickleshare==0.7.4
 Pillow==3.1.0
@@ -125,6 +126,7 @@ SPARQLWrapper==1.7.6
 SpoofMAC==2.0.6
 SQLAlchemy==1.0.9
 statsmodels==0.6.1
+stevedore==1.21.0
 subprocess32==3.2.7
 svgwrite==1.1.6
 tables==3.2.2
@@ -135,6 +137,8 @@ tornado==4.5.1
 traitlets==4.3.2
 unicodecsv==0.14.1
 virtualenv==15.1.0
+virtualenv-clone==0.2.6
+virtualenvwrapper==4.7.2
 wcwidth==0.1.7
 webencodings==0.5
 widgetsnbextension==2.0.0
