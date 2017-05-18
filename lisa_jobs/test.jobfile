@@ -1,4 +1,4 @@
 # set nr cores
-module load python/2.7.12-intel
+
 #cd
 #run bash
