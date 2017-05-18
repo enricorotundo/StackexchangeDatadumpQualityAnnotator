@@ -66,8 +66,17 @@ def load(thread):
     question_body_stripped = BeautifulSoup(question_body, "html5lib").get_text()
 
     # read accepted_answer
-    accepted_answer_body = thread['accepted_answer']['body']
-    accepted_answer_body_stripped = BeautifulSoup(accepted_answer_body, "html5lib").get_text()
+    try:
+        accepted_answer_body = thread['accepted_answer']['body']
+        accepted_answer_body_stripped = BeautifulSoup(accepted_answer_body, "html5lib").get_text()
+        accepted_answer_user_id = thread['accepted_answer']['user']
+        accepted_answer_post_id = thread['accepted_answer']['post_id']
+    except:
+        # some threads might not have any accepted_answer
+        accepted_answer_body = None
+        accepted_answer_body_stripped = None
+        accepted_answer_user_id = None
+        accepted_answer_post_id = None
 
     # read other_answers
     other_answers_body = [answer['body'] for answer in thread['other_answers']]
@@ -85,8 +94,8 @@ def load(thread):
 
         'accepted_answer_body': accepted_answer_body,
         'accepted_answer_body_stripped': accepted_answer_body_stripped,
-        'accepted_answer_user_id': thread['accepted_answer']['user'],
-        'accepted_answer_post_id': thread['accepted_answer']['post_id'],
+        'accepted_answer_user_id': accepted_answer_user_id,
+        'accepted_answer_post_id': accepted_answer_post_id,
 
         'other_answers_body': other_answers_body,
         'other_answers_body_stripped': other_answers_body_stripped,
