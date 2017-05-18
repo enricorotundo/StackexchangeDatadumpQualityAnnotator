@@ -1,4 +1,7 @@
-# set nr cores
+#PBS -lwalltime=00:10:00
+#PBS -lnodes=1
 
-#cd
-#run bash
+echo "Start of job"
+cd $HOME/StackexchangeDatadumpQualityAnnotator
+./deploy_AA_dataset_generation.sh
+echo "End of job"
