@@ -110,7 +110,6 @@ class Command(BaseCommand):
                     'other_answers': a,
                 })
 
-
         print 'Sample thread: \n{}'.format(threads[0])
 
         # write in utf-8 encoding
