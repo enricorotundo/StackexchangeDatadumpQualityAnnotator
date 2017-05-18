@@ -121,5 +121,7 @@ Analysis/Tasks/BestAnswer/plots/**/
 **/*.graphml
 **/*.html
 
+nltk_data/
+
 tagger.pkl
 Analysis/Libs/nltk_passive_voice/

@@ -172,7 +172,10 @@ def main():
     settings = Settings(args.db, args.task_name, args.src_file_name)
 
     logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
-    nltk.data.path.append('venv/nltk_data')
+
+    # setup NLTK
+    nltk.data.path.append(settings.NLTK_DATA_PATH)
+
     dask.set_options(get=dask.multiprocessing.get)
 
     # prepare network analysis data

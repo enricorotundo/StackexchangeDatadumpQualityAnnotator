@@ -59,3 +59,5 @@ class Settings(object):
 
         self.PROGRESS_BAR_DT = 1  # update every x seconds
         self.PROGRESS_BAR_MIN = 5
+
+        self.NLTK_DATA_PATH = 'nltk_data'
