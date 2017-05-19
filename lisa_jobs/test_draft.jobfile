@@ -2,6 +2,7 @@
 #PBS -lnodes=1
 
 echo "Start of job"
-cd $HOME/StackexchangeDatadumpQualityAnnotator
+cp -r $HOME/StackexchangeDatadumpQualityAnnotator "$TMPDIR"
+cd "$TMPDIR"
 ./deploy_AA_dataset_generation_draft.sh
 echo "End of job"
