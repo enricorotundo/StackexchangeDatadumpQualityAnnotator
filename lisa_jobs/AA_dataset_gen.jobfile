@@ -8,5 +8,6 @@ cd "$TMPDIR"/StackexchangeDatadumpQualityAnnotator &&
 echo "Copying output to home dir" &&
 cp -v -r Analysis/Data/travel/features_threads_all_all_binaryBestAnswer $HOME/StackexchangeDatadumpQualityAnnotator/Analysis/Data/travel/features_threads_all_all_binaryBestAnswer &&
 cp -v -r Analysis/Data/travel/AA_annotated_dataset/ $HOME/StackexchangeDatadumpQualityAnnotator/Analysis/Data/travel/ &&
+echo "Job $PBS_JOBID completed at `date`" | mail $USER -s "Job $PBS_JOBID"
 echo "End of job" &&
 echo ""
