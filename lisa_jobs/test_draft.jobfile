@@ -2,6 +2,7 @@
 #PBS -lnodes=1
 
 echo "Start of job"
+module load python/2.7.12-intel
 cp -r $HOME/StackexchangeDatadumpQualityAnnotator "$TMPDIR"/StackexchangeDatadumpQualityAnnotator
 cd "$TMPDIR"
 ./deploy_AA_dataset_generation_draft.sh

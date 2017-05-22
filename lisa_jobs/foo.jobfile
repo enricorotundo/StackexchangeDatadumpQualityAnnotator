@@ -1,6 +1,8 @@
 #PBS -lwalltime=01:00:00
 #PBS -lnodes=1
 
+module load python/2.7.12-intel
+
 echo "Start of job"
 echo $HOME
 echo "********************"
