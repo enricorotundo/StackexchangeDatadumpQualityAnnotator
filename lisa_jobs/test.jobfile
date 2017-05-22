@@ -1,8 +1,0 @@
-#PBS -lwalltime=00:04:00
-#PBS -lnodes=1
-
-echo "Start of job"
-cp -r $HOME/StackexchangeDatadumpQualityAnnotator "$TMPDIR"/StackexchangeDatadumpQualityAnnotator
-cd "$TMPDIR"
-./deploy_AA_dataset_generation.sh
-echo "End of job"
