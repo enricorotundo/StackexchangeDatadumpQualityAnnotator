@@ -1,6 +1,9 @@
 #PBS -lwalltime=01:00:00
 #PBS -lnodes=1
 
+echo "Start of job"
 echo $HOME
+echo "********************"
 echo "$TMPDIR"
 sleep 99999
+echo "End of job"
