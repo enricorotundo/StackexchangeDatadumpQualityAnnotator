@@ -9,7 +9,7 @@ from nltk.corpus import wordnet as wn
 from Analysis.Utils import wikipedia_misspellings
 from Analysis.Libs.nltk_passive_voice import passive
 
-nltk.data.path.append('venv/nltk_data')
+nltk.data.path.append('nltk_data')
 
 """
 sets from:

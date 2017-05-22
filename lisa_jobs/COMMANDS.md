@@ -35,6 +35,12 @@ qdel jobid
 showstart jobid
 ```
 
+## Login worker node (use default python!)
+
+```
+pbs_joblogin jobid
+```
+
 
 ## Ref:
 https://userinfo.surfsara.nl/systems/lisa/usage/batch-usage#heading13
