@@ -3,7 +3,7 @@
 
 echo "Start of job"
 
-module load python/2.7.12-intel
+#module load python/2.7.12-intel
 cp -r $HOME/StackexchangeDatadumpQualityAnnotator "$TMPDIR"/StackexchangeDatadumpQualityAnnotator
 cd "$TMPDIR"
 
