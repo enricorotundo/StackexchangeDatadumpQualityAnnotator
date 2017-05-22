@@ -11,7 +11,7 @@ source venv/bin/activate &&
 #python manage.py ETL_stack_CBEN_network &&
 #python manage.py ETL_stack_users &&
 
-N_PARTITIONS=16
+N_PARTITIONS=64
 DB='travel'
 TASK_NAME='binaryBestAnswer'
 SRC_FILE_NAME='threads_all_all.json'
