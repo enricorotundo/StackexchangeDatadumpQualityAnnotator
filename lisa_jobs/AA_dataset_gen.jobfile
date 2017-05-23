@@ -2,14 +2,19 @@
 #PBS -lnodes=1:cores16
 
 echo "Start of job" &&
+
 echo "Copying project files..." &&
-cp -r $HOME/StackexchangeDatadumpQualityAnnotator "$TMPDIR"/StackexchangeDatadumpQualityAnnotator &&
+cp -r $HOME/StackexchangeDatadumpQualityAnnotator "$TMPDIR" &&
 cd "$TMPDIR"/StackexchangeDatadumpQualityAnnotator &&
+
 echo "Run scripts..." &&
 ./deploy_AA_dataset_generation.sh &&
+
 echo "Copying output to home dir..." &&
-cp -v -r Analysis/Data/travel/features_threads_all_all_binaryBestAnswer $HOME/StackexchangeDatadumpQualityAnnotator/Analysis/Data/travel/features_threads_all_all_binaryBestAnswer &&
+cp -v -r Analysis/Data/travel/features_threads_all_all_binaryBestAnswer $HOME/StackexchangeDatadumpQualityAnnotator/Analysis/Data/travel/ &&
 cp -v -r Analysis/Data/travel/AA_annotated_dataset/ $HOME/StackexchangeDatadumpQualityAnnotator/Analysis/Data/travel/ &&
+
 echo "Job $PBS_JOBID completed at `date`" | mail $USER -s "Job $PBS_JOBID" &&
+
 echo "End of job" &&
 echo ""

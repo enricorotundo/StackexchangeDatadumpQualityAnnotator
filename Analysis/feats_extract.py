@@ -187,7 +187,7 @@ def main():
 
     dask.set_options(get=dask.multiprocessing.get)
 
-    cache = chest.Chest(path='cache', available_memory=15e9)
+    cache = chest.Chest(path='cache', available_memory=62e9)  # 62 GB of RAM
     dask.set_options(cache=cache)
 
     # prepare network analysis data
