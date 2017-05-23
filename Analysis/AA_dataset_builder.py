@@ -31,7 +31,7 @@ def main():
     print df_feats[df_feats['post_id'] == 1505]
     ############
 
-    """
+
     df_ann.set_index('id', inplace=True)
     df_feats.set_index('post_id', inplace=True)
 
@@ -43,7 +43,7 @@ def main():
     prepare_folder(settings.OUTPUT_PATH_DIR_AA_DATASET)
 
     df_merge.to_csv(settings.OUTPUT_PATH_DIR_AA_DATASET  + '/AA_annotated_dataset.csv', encoding=settings.ENCODING)
-    """
+
 
 if __name__ == "__main__":
     main()

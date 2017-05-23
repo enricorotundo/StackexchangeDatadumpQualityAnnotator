@@ -11,7 +11,6 @@ Output datapoints are indexed by thread_id.
 import json
 import logging
 import argparse
-import gc
 
 import numpy as np
 from bs4 import BeautifulSoup
@@ -170,6 +169,7 @@ def thread_extract(thread):
 
 
 def main():
+    # read command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--draft', action='store_true')
     parser.add_argument('--n_partitions', type=int)
@@ -178,6 +178,7 @@ def main():
     parser.add_argument('--src_file_name', type=str, required=True)
     args = parser.parse_args()
 
+    # build settings object for this task
     settings = Settings(args.db, args.task_name, args.src_file_name)
 
     logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
@@ -187,6 +188,7 @@ def main():
 
     dask.set_options(get=dask.multiprocessing.get)
 
+    # use disk cache
     cache = chest.Chest(path='cache', available_memory=62e9)  # 62 GB of RAM
     dask.set_options(cache=cache)
 
@@ -222,28 +224,19 @@ def main():
 
             threads = db.from_sequence(data_list, npartitions=args.n_partitions)
 
-            del data_list
-            gc.collect()
-
             # extract text without html tags
             processed_threads = threads.map(load)
-
-            del threads
-            gc.collect()
 
             # extract features, flatten result
             dataset = processed_threads.map(thread_extract).concat()  # dask.bag.core.Bag
 
-            # prepare output directory
+            # prepare out put directory
             if args.draft:
                 prepare_folder(settings.OUTPUT_PATH_DIR_DRAFT)
             else:
                 prepare_folder(settings.OUTPUT_PATH_DIR)
 
             df = dataset.to_dataframe()
-
-            del dataset
-            gc.collect()
 
             # make sure partitions take thread_id into account!
             df = df.set_index('thread_id')
