@@ -11,6 +11,7 @@ Output datapoints are indexed by thread_id.
 import json
 import logging
 import argparse
+import gc
 
 import numpy as np
 from bs4 import BeautifulSoup
@@ -19,12 +20,11 @@ import dask.bag as db
 import dask.multiprocessing
 from dask.diagnostics import ProgressBar
 import pandas as pd
+import chest
 
 from Analysis.Features import text_style
 from Utils.settings import Settings
 from Utils.commons import prepare_folder
-
-
 
 
 # TODO add other funcs
@@ -187,6 +187,9 @@ def main():
 
     dask.set_options(get=dask.multiprocessing.get)
 
+    cache = chest.Chest(path='cache', available_memory=15e9)
+    dask.set_options(cache=cache)
+
     # prepare network analysis data
     global df_network_analysis
     df_network_analysis = pd.read_csv(settings.DATA_DIR_PATH + '/network_analysis.csv', encoding=settings.ENCODING)
@@ -219,8 +222,14 @@ def main():
 
             threads = db.from_sequence(data_list, npartitions=args.n_partitions)
 
+            del data_list
+            gc.collect()
+
             # extract text without html tags
             processed_threads = threads.map(load)
+
+            del threads
+            gc.collect()
 
             # extract features, flatten result
             dataset = processed_threads.map(thread_extract).concat()  # dask.bag.core.Bag
@@ -232,6 +241,9 @@ def main():
                 prepare_folder(settings.OUTPUT_PATH_DIR)
 
             df = dataset.to_dataframe()
+
+            del dataset
+            gc.collect()
 
             # make sure partitions take thread_id into account!
             df = df.set_index('thread_id')
