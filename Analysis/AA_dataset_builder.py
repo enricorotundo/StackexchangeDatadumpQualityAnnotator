@@ -19,13 +19,13 @@ def main():
     settings = Settings(DB='travel', TASK_NAME='binaryBestAnswer', SRC_FILE_NAME='threads_all_all.json')
 
     # not the draft!
-    df_feats = ddf.read_csv('Analysis/Data/travel/features_threads_all_all_binaryBestAnswer/' + 'features-*.csv', encoding=settings.ENCODING)
+    df_feats = ddf.read_csv('Analysis/Data/travel/features_threads_all_shared_binaryBestAnswer/' + 'features-*.csv', encoding=settings.ENCODING)
     df_ann = pd.read_csv(settings.ANNOTATION_CSV, encoding=settings.ENCODING)
 
     df_feats = df_feats.compute()
 
     ##############
-    # NOTE this script need features from threads_all_all.json!
+    # NOTE this script need features from threads_all_shared.json!
     print df_feats[df_feats['post_id'] == 1454]
     print "*****************************************************************************"
     print df_feats[df_feats['post_id'] == 1505]

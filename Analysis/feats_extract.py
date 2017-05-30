@@ -60,6 +60,8 @@ def load(thread):
     """
     Given a thread dict, it filters fields and add html-stripped body text.
     """
+    logging.info('Loading data for thread_id: {}'.format(thread['thread_id']))
+
     # read question
     question_body = thread['question']['body']
     question_body_stripped = BeautifulSoup(question_body, "html5lib").get_text()
@@ -86,6 +88,7 @@ def load(thread):
 
     return {
         'thread_id': thread['thread_id'],
+
         'question_body': question_body,
         'question_body_stripped': question_body_stripped,
         'question_user_id': thread['question']['user'],
@@ -109,7 +112,7 @@ def thread_extract(thread):
     """
     thread_dataset = []
 
-    # ACCEPTED ANSWER
+    # process ACCEPTED ANSWER
     # ignore posts by 'null' users
     if thread['accepted_answer_user_id']:
         # extract unary features
@@ -135,7 +138,7 @@ def thread_extract(thread):
         # append datapoint
         thread_dataset.append(datapoint)
 
-    # OTHER ANSWERS FEATURES
+    # process OTHER ANSWERS FEATURES
     for answer, user_id, post_id in zip(thread['other_answers_body_stripped'],
                                         thread['other_answers_users_ids'],
                                         thread['other_answers_post_ids']):
@@ -166,6 +169,116 @@ def thread_extract(thread):
             thread_dataset.append(datapoint)
 
     return thread_dataset
+
+
+def thread_extract_shared(thread):
+    """
+    Extracts features and returns a list of data-points for the given thread. 
+    Works with the AA dataset.
+    """
+    logging.info('Extracting feats from thread_id: {}'.format(thread['thread_id']))
+
+    thread_dataset = []
+
+    # process QUESTION
+
+    datapoint = dict()
+    for f in UNARY_FUNCS:
+        datapoint[f.__name__] = f(thread['question_body_stripped'])
+    # add network analysis features
+    try:
+        df_net_question = df_network_analysis.loc[thread['question_user_id']]  # use 'loc' not 'iloc'!
+        for col_name, values in df_net_question.iteritems():
+            datapoint[col_name] = values
+
+        # add user's activity features
+        df_user_activity_accepted_answer = df_users_activity.loc[thread['question_user_id']]  # use 'loc' not 'iloc'!
+        for col_name, values in df_user_activity_accepted_answer.iteritems():
+            datapoint[col_name] = values
+    except:
+        # here thread['question_user_id'] is probably null/None
+        # fill missing values with averages
+        for col_name, values in df_network_analysis.iteritems():
+            datapoint[col_name] = df_network_analysis[col_name].mean()
+
+        for col_name, values in df_users_activity.iteritems():
+            datapoint[col_name] = df_users_activity[col_name].mean()
+    # add additional data
+    datapoint['best_answer'] = 0
+    datapoint['thread_id'] = thread['thread_id']
+    datapoint['post_id'] = thread['question_post_id']
+    # append datapoint
+    thread_dataset.append(datapoint)
+
+    # process ACCEPTED ANSWER
+    # posts by 'null' users are hereby considered
+    if thread['accepted_answer_body']:
+        # extract unary features
+        datapoint = dict()
+        for f in UNARY_FUNCS:
+            datapoint[f.__name__] = f(thread['accepted_answer_body_stripped'])
+
+        # add network analysis features
+        try:
+            df_net_accepted_answer = df_network_analysis.loc[thread['accepted_answer_user_id']]  # use 'loc' not 'iloc'!
+            for col_name, values in df_net_accepted_answer.iteritems():
+                datapoint[col_name] = values
+            # add user's activity features
+            df_user_activity_accepted_answer = df_users_activity.loc[thread['accepted_answer_user_id']]  # use 'loc' not 'iloc'!
+            for col_name, values in df_user_activity_accepted_answer.iteritems():
+                datapoint[col_name] = values
+        except:
+            # here thread['question_user_id'] is probably null/None
+            # fill missing values with averages
+            for col_name, values in df_network_analysis.iteritems():
+                datapoint[col_name] = df_network_analysis[col_name].mean()
+            for col_name, values in df_users_activity.iteritems():
+                datapoint[col_name] = df_users_activity[col_name].mean()
+        # add additional data
+        datapoint['best_answer'] = 1
+        datapoint['thread_id'] = thread['thread_id']
+        datapoint['post_id'] = thread['accepted_answer_post_id']
+        # append datapoint
+        thread_dataset.append(datapoint)
+
+    # process OTHER ANSWERS FEATURES
+    for answer, user_id, post_id in zip(thread['other_answers_body_stripped'],
+                                        thread['other_answers_users_ids'],
+                                        thread['other_answers_post_ids']):
+        # process also posts by 'null' users
+        datapoint = dict()
+
+        # extract unary features
+        for f in UNARY_FUNCS:
+            datapoint[f.__name__] = f(answer)
+
+        # add network analysis features
+        try:
+            df_net_answer = df_network_analysis.loc[user_id]  # use 'loc' not 'iloc'!
+            for col_name, values in df_net_answer.iteritems():
+                datapoint[col_name] = values
+
+            # add user's activity features
+            df_user_activity_answer = df_users_activity.loc[user_id]  # use 'loc' not 'iloc'!
+            for col_name, values in df_user_activity_answer.iteritems():
+                datapoint[col_name] = values
+        except:
+            for col_name, values in df_network_analysis.iteritems():
+                datapoint[col_name] = df_network_analysis[col_name].mean()
+
+            for col_name, values in df_users_activity.iteritems():
+                datapoint[col_name] = df_users_activity[col_name].mean()
+
+        # add additional data
+        datapoint['best_answer'] = 0
+        datapoint['thread_id'] = thread['thread_id']
+        datapoint['post_id'] = post_id
+
+        # append datapoint
+        thread_dataset.append(datapoint)
+
+    return thread_dataset
+
 
 
 def main():
@@ -228,7 +341,12 @@ def main():
             processed_threads = threads.map(load)
 
             # extract features, flatten result
-            dataset = processed_threads.map(thread_extract).concat()  # dask.bag.core.Bag
+            if args.src_file_name == 'threads_all_shared.json':
+                logging.info('Processing "shared" posts mode. Using {} as source file'.format(args.src_file_name))
+                dataset = processed_threads.map(thread_extract_shared).concat()  # dask.bag.core.Bag
+            else:
+                logging.info('Processing posts with best answer.')
+                dataset = processed_threads.map(thread_extract).concat()  # dask.bag.core.Bag
 
             # prepare out put directory
             if args.draft:

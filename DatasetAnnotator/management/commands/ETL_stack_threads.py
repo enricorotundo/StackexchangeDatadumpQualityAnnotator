@@ -17,13 +17,15 @@ django.setup()
 from django.core.management.base import BaseCommand
 
 from DatasetAnnotator.models import *
+from DatasetAnnotator.views import get_shared_questions
 
 # community selection
 db = 'travel'
 OUTPUT_PATH = 'Analysis/Data/' + db + '/'
 #FILE_NAME = 'threads_acceptedOnly_ansCountGte4.json'
 #FILE_NAME = 'threads_acceptedOnly_all.json'
-FILE_NAME = 'threads_all_all.json'
+#FILE_NAME = 'threads_all_all.json'
+FILE_NAME = 'threads_all_shared.json'
 
 class Command(BaseCommand):
     help = ''
@@ -33,7 +35,7 @@ class Command(BaseCommand):
         FILE_NAME naming schema, _ separated:
             * threads
             * all / acceptedOnly
-            * all / ansCountGte2 / ansCountGte4
+            * all / ansCountGte2 / ansCountGte4 / shared
         """
 
         # selecting questions, see above for description
@@ -52,6 +54,9 @@ class Command(BaseCommand):
         elif FILE_NAME == 'threads_all_all.json':
             # this is for AA_dataset_builder
             questions = Posts.objects.using(db).filter(posttypeid=1)
+        elif FILE_NAME == 'threads_all_shared.json':
+            shared_questions = get_shared_questions()['travel']
+            questions = Posts.objects.using(db).filter(id__in=shared_questions).filter(posttypeid=1)
 
         all_answers = Posts.objects.using(db).filter(posttypeid=2)
 

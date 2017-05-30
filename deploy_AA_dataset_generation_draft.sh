@@ -14,7 +14,7 @@ source venv/bin/activate &&
 N_PARTITIONS=4
 DB='travel'
 TASK_NAME='binaryBestAnswer'
-SRC_FILE_NAME='threads_all_all.json'
+SRC_FILE_NAME='threads_all_shared.json'
 
 python -m Analysis.feats_extract --draft --n_partitions ${N_PARTITIONS} --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
 python -m Analysis.AA_dataset_builder
