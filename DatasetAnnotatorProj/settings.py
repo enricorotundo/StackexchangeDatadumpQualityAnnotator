@@ -82,7 +82,14 @@ WSGI_APPLICATION = 'DatasetAnnotatorProj.wsgi.application'
 
 
 DATABASES = {
-    'default': {},
+    'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'travel_stackexchange_com',
+            'USER': 'awsuser',
+            'PASSWORD': 'oPs-3la-vh6-0dv',
+            'HOST': 'mydbinstance.crxqv1d0b0kd.eu-west-1.rds.amazonaws.com',
+            'PORT': '3306',
+        },
     'cooking': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'cooking_stackexchange_com',
@@ -108,6 +115,16 @@ DATABASES = {
             'PORT': '3306',
         },
 }
+"""
+'stackoverflow_com': {
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': 'stackoverflow_com',
+    'USER': 'root',
+    'PASSWORD': 'root',
+    'HOST': 'localhost',
+    'PORT': '8889',
+},
+"""
 
 
 

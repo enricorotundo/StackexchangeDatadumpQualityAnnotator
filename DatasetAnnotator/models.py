@@ -43,15 +43,66 @@ class Posts(models.Model):
         db_table = 'Posts'
 
 
-class Annotationscount(models.Model):
+class Badges(models.Model):
     id = models.IntegerField(db_column='Id', primary_key=True)  # Field name made lowercase.
-    enrico = models.IntegerField(db_column='Enrico', blank=True, null=True)  # Field name made lowercase.
-    marit = models.IntegerField(db_column='Marit', blank=True, null=True)  # Field name made lowercase.
-    christine = models.IntegerField(db_column='Christine', blank=True, null=True)  # Field name made lowercase.
-    henrik = models.IntegerField(db_column='Henrik', blank=True, null=True)  # Field name made lowercase.
+    userid = models.IntegerField(db_column='UserId', blank=True, null=True)  # Field name made lowercase.
+    name = models.CharField(db_column='Name', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    date = models.DateTimeField(db_column='Date', blank=True, null=True)  # Field name made lowercase.
+    class_field = models.SmallIntegerField(db_column='Class', blank=True, null=True)  # Field name made lowercase. Field renamed because it was a Python reserved word.
+    tagbased = models.TextField(db_column='TagBased', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
 
     class Meta:
         managed = False
-        db_table = 'AnnotationsCount'
+        db_table = 'Badges'
+
+
+class Comments(models.Model):
+    id = models.IntegerField(db_column='Id', primary_key=True)  # Field name made lowercase.
+    postid = models.IntegerField(db_column='PostId')  # Field name made lowercase.
+    score = models.IntegerField(db_column='Score')  # Field name made lowercase.
+    text = models.TextField(db_column='Text', blank=True, null=True)  # Field name made lowercase.
+    creationdate = models.DateTimeField(db_column='CreationDate', blank=True, null=True)  # Field name made lowercase.
+    userdisplayname = models.CharField(db_column='UserDisplayName', max_length=30, blank=True, null=True)  # Field name made lowercase.
+    userid = models.IntegerField(db_column='UserId', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'Comments'
+
+
+class Users(models.Model):
+    id = models.IntegerField(db_column='Id', primary_key=True)  # Field name made lowercase.
+    reputation = models.IntegerField(db_column='Reputation')  # Field name made lowercase.
+    creationdate = models.DateTimeField(db_column='CreationDate', blank=True, null=True)  # Field name made lowercase.
+    displayname = models.CharField(db_column='DisplayName', max_length=40, blank=True, null=True)  # Field name made lowercase.
+    lastaccessdate = models.DateTimeField(db_column='LastAccessDate')  # Field name made lowercase.
+    websiteurl = models.CharField(db_column='WebsiteUrl', max_length=256, blank=True, null=True)  # Field name made lowercase.
+    location = models.CharField(db_column='Location', max_length=256, blank=True, null=True)  # Field name made lowercase.
+    aboutme = models.TextField(db_column='AboutMe', blank=True, null=True)  # Field name made lowercase.
+    views = models.IntegerField(db_column='Views', blank=True, null=True)  # Field name made lowercase.
+    upvotes = models.IntegerField(db_column='UpVotes', blank=True, null=True)  # Field name made lowercase.
+    downvotes = models.IntegerField(db_column='DownVotes', blank=True, null=True)  # Field name made lowercase.
+    profileimageurl = models.CharField(db_column='ProfileImageUrl', max_length=200, blank=True, null=True)  # Field name made lowercase.
+    emailhash = models.CharField(db_column='EmailHash', max_length=32, blank=True, null=True)  # Field name made lowercase.
+    age = models.IntegerField(db_column='Age', blank=True, null=True)  # Field name made lowercase.
+    accountid = models.IntegerField(db_column='AccountId', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'Users'
+
+
+class Votes(models.Model):
+    id = models.IntegerField(db_column='Id', primary_key=True)  # Field name made lowercase.
+    postid = models.IntegerField(db_column='PostId')  # Field name made lowercase.
+    votetypeid = models.SmallIntegerField(db_column='VoteTypeId')  # Field name made lowercase.
+    userid = models.IntegerField(db_column='UserId', blank=True, null=True)  # Field name made lowercase.
+    creationdate = models.DateTimeField(db_column='CreationDate', blank=True, null=True)  # Field name made lowercase.
+    bountyamount = models.IntegerField(db_column='BountyAmount', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'Votes'
+
 
 

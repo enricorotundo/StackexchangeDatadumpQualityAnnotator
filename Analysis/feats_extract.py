@@ -121,12 +121,12 @@ def thread_extract(thread):
             datapoint[f.__name__] = f(thread['accepted_answer_body_stripped'])
 
         # add network analysis features
-        df_net_accepted_answer = df_network_analysis.loc[thread['accepted_answer_user_id']]  # use 'loc' not 'iloc'!
+        df_net_accepted_answer = df_network_analysis.loc[thread['accepted_answer_user_id']]  # use 'loc' instead of 'iloc'!
         for col_name, values in df_net_accepted_answer.iteritems():
             datapoint[col_name] = values
 
         # add user's activity features
-        df_user_activity_accepted_answer = df_users_activity.loc[thread['accepted_answer_user_id']]  # use 'loc' not 'iloc'!
+        df_user_activity_accepted_answer = df_users_activity.loc[thread['accepted_answer_user_id']]  # use 'loc' instead of 'iloc'!
         for col_name, values in df_user_activity_accepted_answer.iteritems():
             datapoint[col_name] = values
 
@@ -151,12 +151,12 @@ def thread_extract(thread):
                 datapoint[f.__name__] = f(answer)
 
             # add network analysis features
-            df_net_answer = df_network_analysis.loc[user_id]  # use 'loc' not 'iloc'!
+            df_net_answer = df_network_analysis.loc[user_id]  # use 'loc' instead of 'iloc'!
             for col_name, values in df_net_answer.iteritems():
                 datapoint[col_name] = values
 
             # add user's activity features
-            df_user_activity_answer = df_users_activity.loc[user_id]  # use 'loc' not 'iloc'!
+            df_user_activity_answer = df_users_activity.loc[user_id]  # use 'loc' instead of 'iloc'!
             for col_name, values in df_user_activity_answer.iteritems():
                 datapoint[col_name] = values
 

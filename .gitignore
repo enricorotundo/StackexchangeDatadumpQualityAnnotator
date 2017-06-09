@@ -94,7 +94,6 @@ celerybeat-schedule
 # virtualenv
 .venv/
 venv/
-ENV/
 
 # Spyder project settings
 .spyderproject
@@ -104,9 +103,8 @@ ENV/
 .idea/
 
 annotations_backups/
-data_source/stackexchange_v12Sept2016/cooking.stackexchange.com/
-data_source/stackexchange_v12Sept2016/travel.stackexchange.com/
-data_source/stackexchange_v12Sept2016/webapps.stackexchange.com/
+
+etl/data_source/
 
 Analysis/Tasks/Quality/plots/
 Analysis/Tasks/BestAnswer/plots/**/
@@ -120,6 +118,7 @@ Analysis/Tasks/BestAnswer/plots/**/
 **/*.gexf
 **/*.graphml
 **/*.html
+**/*.7z
 
 nltk_data/
 cache/
