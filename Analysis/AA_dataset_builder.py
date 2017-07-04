@@ -14,13 +14,13 @@ import dask.dataframe as ddf
 from Utils.settings import Settings
 from Utils.commons import prepare_folder
 
-
 def main():
     settings = Settings(DB='travel', TASK_NAME='binaryBestAnswer', SRC_FILE_NAME='threads_all_all.json')
 
     # not the draft!
     df_feats = ddf.read_csv('Analysis/Data/travel/features_threads_all_shared_binaryBestAnswer/' + 'features-*.csv', encoding=settings.ENCODING)
     df_ann = pd.read_csv(settings.ANNOTATION_CSV, encoding=settings.ENCODING)
+    userid_postid = pd.read_csv('Analysis/Data/travel/userid_postid.csv', encoding=settings.ENCODING)
 
     df_feats = df_feats.compute()
 
@@ -29,6 +29,7 @@ def main():
     print df_feats[df_feats['post_id'] == 1454]
     print "*****************************************************************************"
     print df_feats[df_feats['post_id'] == 1505]
+    print "*****************************************************************************\n\n\n\n"
     ############
 
 
@@ -38,7 +39,8 @@ def main():
     df_merge = df_ann.join(df_feats, how='left')
     #df_merge.drop('Unnamed: 0', axis=1, inplace=True) # drop weird column
 
-    print df_merge.describe()
+    userid_postid.set_index('id', inplace=True)
+    df_merge = df_merge.join(userid_postid, how='outer')
 
     prepare_folder(settings.OUTPUT_PATH_DIR_AA_DATASET)
 

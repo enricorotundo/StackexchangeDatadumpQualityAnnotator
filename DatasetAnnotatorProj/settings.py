@@ -83,12 +83,6 @@ WSGI_APPLICATION = 'DatasetAnnotatorProj.wsgi.application'
 
 DATABASES = {
     'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'travel_stackexchange_com',
-            'USER': 'awsuser',
-            'PASSWORD': 'oPs-3la-vh6-0dv',
-            'HOST': 'mydbinstance.crxqv1d0b0kd.eu-west-1.rds.amazonaws.com',
-            'PORT': '3306',
         },
     'cooking': {
         'ENGINE': 'django.db.backends.mysql',
