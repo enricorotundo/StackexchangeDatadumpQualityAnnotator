@@ -15,7 +15,7 @@ source venv/bin/activate &&
 ### Merge networks data
 # python -m Analysis.network_analysis
 
-N_PARTITIONS=4
+N_PARTITIONS=16
 DB='travel'
 TASK_NAME='binaryBestAnswer'
 SRC_FILE_NAME='threads_acceptedOnly_all.json'
