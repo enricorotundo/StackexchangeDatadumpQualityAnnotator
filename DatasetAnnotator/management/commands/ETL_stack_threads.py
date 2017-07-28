@@ -21,11 +21,14 @@ from DatasetAnnotator.views import get_shared_questions
 
 # community selection
 db = 'travel'
+#db = 'stackoverflow'
+
 OUTPUT_PATH = 'Analysis/Data/' + db + '/'
-#FILE_NAME = 'threads_acceptedOnly_ansCountGte4.json'
+#FILE_NAME = 'threads_acceptedOnly_ansCountGte2.json'
+FILE_NAME = 'threads_acceptedOnly_ansCountGte4.json'
 #FILE_NAME = 'threads_acceptedOnly_all.json'
 #FILE_NAME = 'threads_all_all.json'
-FILE_NAME = 'threads_all_shared.json'
+#FILE_NAME = 'threads_all_shared.json'
 
 class Command(BaseCommand):
     help = ''

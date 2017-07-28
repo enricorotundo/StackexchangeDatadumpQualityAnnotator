@@ -20,6 +20,8 @@ django.setup()
 
 # community selection
 db = 'travel'
+#db = 'stackoverflow'
+
 OUTPUT_PATH = 'Analysis/Data/' + db + '/'
 FILE_NAME = 'competition_based_expertise_network.graphml'
 

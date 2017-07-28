@@ -27,7 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = [u'localhost',
                  u'54.194.57.17',
-                 u'ec2-54-194-57-17.eu-west-1.compute.amazonaws.com']
+                 u'ec2-54-194-57-17.eu-west-1.compute.amazonaws.com',
+                 u'192.168.1.100']
 
 
 # Application definition
@@ -79,8 +80,6 @@ WSGI_APPLICATION = 'DatasetAnnotatorProj.wsgi.application'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 # production
-
-
 DATABASES = {
     'default': {
         },
@@ -108,17 +107,16 @@ DATABASES = {
             'HOST': 'mydbinstance.crxqv1d0b0kd.eu-west-1.rds.amazonaws.com',
             'PORT': '3306',
         },
+    'stackoverflow': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'stackoverflow_com',
+            'USER': 'root',
+            'PASSWORD': 'root',
+            'HOST': '192.168.1.100',
+            'PORT': '8889',
+        },
 }
-"""
-'stackoverflow_com': {
-    'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'stackoverflow_com',
-    'USER': 'root',
-    'PASSWORD': 'root',
-    'HOST': 'localhost',
-    'PORT': '8889',
-},
-"""
+
 
 
 

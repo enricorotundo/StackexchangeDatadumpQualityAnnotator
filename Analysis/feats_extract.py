@@ -26,7 +26,6 @@ from Utils.settings import Settings
 from Utils.commons import prepare_folder
 
 
-# TODO add other funcs
 UNARY_FUNCS = [text_style.ty_cpc,
                text_style.ty_cpe,
                text_style.ty_poc,
@@ -49,8 +48,6 @@ UNARY_FUNCS = [text_style.ty_cpc,
                text_style.ty_sipc,
                text_style.ty_spr,
                ]
-
-
 
 #TODO add other funcs + call them in thread_extract()
 BINARY_FUNCS = []
@@ -280,7 +277,6 @@ def thread_extract_shared(thread):
     return thread_dataset
 
 
-
 def main():
     # read command line arguments
     parser = argparse.ArgumentParser()
@@ -333,7 +329,7 @@ def main():
                 data_list = data_list[:5]  # get only some threads
             else:
                 logging.info('Draft mode disabled, using whole datasource.')
-                logging.debug(len(data_list))
+            logging.info('Number of threads: {}'.format(len(data_list)))
 
             threads = db.from_sequence(data_list, npartitions=args.n_partitions)
 

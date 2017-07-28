@@ -22,6 +22,8 @@ from DatasetAnnotator.models import *
 
 # database selection
 db = 'travel'
+#db = 'stackoverflow'
+
 OUTPUT_PATH = 'Analysis/Data/' + db + '/'
 FILE_NAME = 'users_activity.json'
 

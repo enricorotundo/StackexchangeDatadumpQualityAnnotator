@@ -20,6 +20,8 @@ django.setup()
 
 # community selection
 db = 'travel'
+#db = 'stackoverflow'
+
 OUTPUT_PATH = 'Analysis/Data/' + db + '/'
 FILE_NAME = 'cooccurrence_network.graphml'
 

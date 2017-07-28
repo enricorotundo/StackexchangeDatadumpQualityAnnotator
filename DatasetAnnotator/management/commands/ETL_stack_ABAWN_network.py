@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Run this with: time python manage.py ETL_stack_ABAN_network
+Run this with: time python manage.py ETL_stack_ABAWN_network
 
-This script extract an Asker-best answerer network (ABAN) from the whole DB (important!) and save it into a GRAPHML file.
+This script extract an Asker-best answerer weighted network (ABAWN) from the whole DB (important!) and save it into a GRAPHML file.
 Works with StackExchange data dumps.
 Output file is encoded in UTF-8 format.
 """
@@ -12,6 +12,7 @@ import itertools
 
 import django
 import networkx as nx
+import numpy as np
 
 from django.core.management.base import BaseCommand
 from DatasetAnnotator.models import Posts
@@ -23,7 +24,7 @@ db = 'travel'
 #db = 'stackoverflow'
 
 OUTPUT_PATH = 'Analysis/Data/' + db + '/'
-FILE_NAME = 'asker_best_answerer_network.graphml'
+FILE_NAME = 'asker_best_answerer_weighted_network.graphml'
 
 
 class Command(BaseCommand):
@@ -48,6 +49,12 @@ class Command(BaseCommand):
             # replacing deleted users (None to -1)
             users = [user if user is not None else -1L for user in users]
             users = [i for i in itertools.product([question.owneruserid if question.owneruserid else -1], users)]
+
+            # add node weight info
+            if users:
+                weight = float(np.log2(all_answers.filter(parentid=question.id).count() + 1))
+                users = [(tuple[0], tuple[1], {'weight': weight}) for tuple in users]
+
             if users:
                 edges.extend(users)
 
