@@ -12,6 +12,7 @@ echo "Run scripts..." &&
 ./deploy_binaryBestAnswer.sh &&
 
 echo "Copying output to home dir..." &&
+rm -r $HOME/StackexchangeDatadumpQualityAnnotator/Analysis/Data/travel/* &&
 cp -v -r Analysis/Data/travel $HOME/StackexchangeDatadumpQualityAnnotator/Analysis/Data/travel &&
 
 echo "Job $PBS_JOBID completed at `date`" | mail $USER -s "Job $PBS_JOBID" &&
