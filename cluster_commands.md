@@ -11,10 +11,10 @@ qsub test.jobfile
 showq -u enricor
 ```
 
-## Information about job
+## Information about jobs
 
 ```
-qstat -n -u user
+qstat -n -u enricor
 ```
 
 ## checkjob information about a specific job

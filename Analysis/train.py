@@ -4,7 +4,6 @@
 Run this with: time python -m Analysis.train
 
 Train a model on the development set (used in cross-validation).
-Evaluate over the evaluation set (unseen, left-out).
 """
 
 import logging
@@ -15,12 +14,14 @@ import dask
 import dask.multiprocessing
 import dask.dataframe as ddf
 import pandas as pd
+import sklearn
 
 import dask_searchcv
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GroupShuffleSplit
 from dask.diagnostics import ProgressBar
+from sklearn.externals import joblib
 
 from Metrics import ndcg
 from Utils.settings import Settings
@@ -48,14 +49,10 @@ def main():
             logging.info('Draft mode: ENABLED.')
             df_development = ddf.read_csv(settings.OUTPUT_PATH_DIR_PREPROC_DRAFT + 'development-*.csv',
                                           encoding=settings.ENCODING)
-            df_evaluation = ddf.read_csv(settings.OUTPUT_PATH_DIR_PREPROC_DRAFT + 'evaluation-*.csv',
-                                         encoding=settings.ENCODING)
         else:
             logging.info('Draft mode: DISABLED.')
             df_development = ddf.read_csv(settings.OUTPUT_PATH_DIR_PREPROC + 'development-*.csv',
                                           encoding=settings.ENCODING)
-            df_evaluation = ddf.read_csv(settings.OUTPUT_PATH_DIR_PREPROC + 'evaluation-*.csv',
-                                         encoding=settings.ENCODING)
 
         X_development = df_development \
             .drop('best_answer', axis=1) \
@@ -67,26 +64,14 @@ def main():
         y_development = df_development['best_answer'].compute()
         groups_development = df_development['thread_id'].compute()
 
-        X_evaluation = df_evaluation \
-            .drop('best_answer', axis=1) \
-            .drop('thread_id', axis=1) \
-            .drop('post_id', axis=1) \
-            .drop('Unnamed: 0', axis=1) \
-            .drop('Unnamed: 0.1', axis=1) \
-            .drop('index', axis=1).compute()
-        y_evaluation = df_evaluation['best_answer'].compute()
-        groups_evaluation = df_evaluation['thread_id'].compute()
-
         # print sanity checks
         logging.info('*******************************************************************************')
         logging.info('Sanity check for: df_development')
-        logging.info(pprint.pformat(df_development.head()))
-        logging.info('*******************************************************************************')
-        logging.info('Sanity check for: df_evaluation')
-        logging.info(pprint.pformat(df_evaluation.head()))
+        logging.info(pprint.pformat(df_development.head(3)))
         logging.info('*******************************************************************************')
         logging.info('Make sure there are only IV columns:')
         logging.info(pprint.pformat(pprint.pformat(sorted(X_development.columns))))
+        logging.info('*******************************************************************************')
 
         clf = RandomForestClassifier()
         pipeline = Pipeline([('random_forest', clf)])
@@ -107,49 +92,38 @@ def main():
                       'random_forest__verbose': [0],
                       'random_forest__n_jobs': [-1]
                       }
+        logging.info('Parameters for {}:'.format(clf.__class__.__name__))
+        logging.info(pprint.pformat(parameters))
 
-        splitter = GroupShuffleSplit(n_splits=1, train_size=settings.TRAIN_SIZE, random_state=settings.RND_SEED)
+        cv_folds_nr = 1
+        splitter = GroupShuffleSplit(n_splits=cv_folds_nr, train_size=settings.TRAIN_SIZE, random_state=settings.RND_SEED)
         split_cv = splitter.split(X_development, groups=groups_development)
 
-        # dask's GridSearchCV
-        cv = dask_searchcv.GridSearchCV(pipeline, cv=split_cv, param_grid=parameters, scheduler='multiprocessing')
-        # scikit's GridSearchCV (better use the one above)
-        ##cv = GridSearchCV(pipeline, cv=split_cv, param_grid=parameters)
+        ### dask's GridSearchCV
+        cv = dask_searchcv.GridSearchCV(pipeline,
+                                        cv=split_cv,
+                                        param_grid=parameters,
+                                        scheduler='multiprocessing',
+                                        refit=True,
+                                        n_jobs=-1)
+        ### scikit's GridSearchCV (better use the one above)
+        #optimal_estimator = sklearn.model_selection.GridSearchCV(pipeline, cv=split_cv, param_grid=parameters)
 
         # select the best model
+        logging.info("Training started...")
         cv.fit(X_development, y_development, groups=groups_development)
+        logging.info("Training finished")
 
-        # predict the evaluation set and check it's score
-        y_predictions = cv.predict(X_evaluation)
+        logging.info(pprint.pformat(cv.best_score_))
+        logging.info(pprint.pformat(cv.best_params_))
+        logging.info(pprint.pformat(cv.cv_results_))
 
-        # put all together
-        df_predictions = pd.DataFrame.from_records({'y_true': y_evaluation,
-                                                    'y_pred': y_predictions,
-                                                    'thread_id': groups_evaluation,
-                                                    'post_id': df_evaluation['post_id'].compute()})
 
-        logging.info("Here's your predictions:" )
-        logging.info(pprint.pformat(df_predictions.head()))
+        # Pickle the best estimator!
+        joblib.dump(cv.best_estimator_,
+                    'PickledModels/{}_sklearn{}.pkl'.format(clf.__class__.__name__, sklearn.__version__),
+                    compress=True)
 
-        def compute_metrics(df):
-            # TODO check this
-            return ndcg.ndcg_at_k(df['y_pred'], 1)
-
-        # FIXME df_predictions['thread_id'] contains NaNs
-        # FIXME dask.async.ValueError: cannot reindex from a duplicate axis
-        ndcg_list = df_predictions.groupby('thread_id').apply(compute_metrics)
-
-        # save predictions
-        if args.draft:
-            prepare_folder(settings.OUTPUT_PATH_DIR_PREDICTIONS_DRAFT)
-            df_predictions.to_csv(settings.OUTPUT_PATH_DIR_PREDICTIONS_DRAFT + 'predictions.csv',
-                                            encoding=settings.ENCODING)
-        else:
-            prepare_folder(settings.OUTPUT_PATH_DIR_PREDICTIONS)
-            df_predictions.to_csv(settings.OUTPUT_PATH_DIR_PREDICTIONS + 'predictions.csv',
-                                            encoding=settings.ENCODING)
-
-        logging.info('nDCG@1: {}'.format(ndcg_list.mean()))
 
     logging.info('Training: completed.')
 
