@@ -45,6 +45,21 @@ class Settings(object):
         self.OUTPUT_PATH_DIR_PLOTS = self.DATA_DIR_PATH + '/plots_{}_{}/'.format(self.SRC_FILE_NAME.split(".")[0], self.TASK_NAME)
         self.OUTPUT_PATH_DIR_PLOTS_DRAFT = self.DATA_DIR_PATH + '/plots_{}_{}_draft/'.format(self.SRC_FILE_NAME.split(".")[0], self.TASK_NAME)
 
+        # results (scores)
+        self.OUTPUT_PATH_DIR_RESULTS = self.DATA_DIR_PATH + '/results_{}_{}/'.format(self.SRC_FILE_NAME.split(".")[0],
+                                                                                 self.TASK_NAME)
+        self.OUTPUT_PATH_DIR_RESULTS_DRAFT = self.DATA_DIR_PATH + '/results_{}_{}_draft/'.format(
+            self.SRC_FILE_NAME.split(".")[0],
+            self.TASK_NAME)
+
+        # pickled models
+        self.OUTPUT_PATH_DIR_PICKLED = self.DATA_DIR_PATH + '/pickled_{}_{}/'.format(self.SRC_FILE_NAME.split(".")[0],
+                                                                                     self.TASK_NAME)
+        self.OUTPUT_PATH_DIR_PICKLED_DRAFT = self.DATA_DIR_PATH + '/pickled_{}_{}_draft/'.format(
+            self.SRC_FILE_NAME.split(".")[0],
+            self.TASK_NAME)
+
+        # AA task
         self.OUTPUT_PATH_DIR_AA_DATASET = self.DATA_DIR_PATH + '/AA_annotated_dataset/'
         self.ANNOTATION_CSV = self.DATA_DIR_PATH + '/' + 'travel_Posts_2017-04-04T09-06-50.604474_sheetV4.csv'
         self.ENCODING = 'utf-8'

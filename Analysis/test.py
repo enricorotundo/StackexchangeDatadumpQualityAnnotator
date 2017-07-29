@@ -15,11 +15,8 @@ import dask.multiprocessing
 import dask.dataframe as ddf
 import pandas as pd
 
-import dask_searchcv
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GroupShuffleSplit
 from dask.diagnostics import ProgressBar
+from sklearn.externals import joblib
 
 from Metrics import ndcg
 from Utils.settings import Settings
@@ -69,10 +66,10 @@ def main():
         logging.info('*******************************************************************************')
 
 
-
+        clf = joblib.load(settings.OUTPUT_PATH_DIR_PICKLED + 'Pipeline_sklearn0.18.1.pkl')
 
         # predict the evaluation set and check it's score
-        y_predictions = cv.predict(X_evaluation)
+        y_predictions = clf.predict(X_evaluation)
 
         # put all together
         df_predictions = pd.DataFrame.from_records({'y_true': y_evaluation,

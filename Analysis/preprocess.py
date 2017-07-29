@@ -175,11 +175,6 @@ def main():
         else:
             logging.info('Plot mode: Disabled... This should save you time.')
 
-        # TODO check for collinearity
-        # http://onlinelibrary.wiley.com/doi/10.1890/08-0879.1/abstract
-
-        # TODO others?
-
     logging.info('Pre-processing: completed.')
 
 if __name__ == "__main__":
