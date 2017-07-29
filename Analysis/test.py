@@ -9,6 +9,7 @@ Evaluate over the evaluation set (unseen, left-out).
 import logging
 import argparse
 import pprint
+import glob
 
 import dask
 import dask.multiprocessing
@@ -36,7 +37,7 @@ def main():
     dask.set_options(get=dask.multiprocessing.get)
     logging.basicConfig(format=settings.LOGGING_FORMAT, level=settings.LOGGING_LEVEL)
 
-    logging.info('Training: started.')
+    logging.info('Testing: started.')
 
     with ProgressBar(dt=settings.PROGRESS_BAR_DT, minimum=settings.PROGRESS_BAR_MIN):
 
@@ -65,44 +66,59 @@ def main():
         logging.info(pprint.pformat(df_evaluation.head(3)))
         logging.info('*******************************************************************************')
 
+        for file_path in glob.glob(settings.OUTPUT_PATH_DIR_PICKLED + '*.pkl'):
+            clf = joblib.load(file_path)
 
-        clf = joblib.load(settings.OUTPUT_PATH_DIR_PICKLED + 'Pipeline_sklearn0.18.1.pkl')
+            # predict on the test set
+            y_predictions = clf.predict(X_evaluation)
 
-        # predict the evaluation set and check it's score
-        y_predictions = clf.predict(X_evaluation)
+            try:
+                y_proba = clf.predict_proba(X_evaluation)
+            except:
+                y_proba = []
 
-        # put all together
-        df_predictions = pd.DataFrame.from_records({'y_true': y_evaluation,
-                                                    'y_pred': y_predictions,
-                                                    'thread_id': groups_evaluation,
-                                                    'post_id': df_evaluation['post_id'].compute()})
+            # put all together
+            df_predictions = pd.DataFrame.from_records({'y_true': y_evaluation,
+                                                        'y_pred': y_predictions,
+                                                        'thread_id': groups_evaluation,
+                                                        'post_id': df_evaluation['post_id'].compute(),
+                                                        'pred_proba_class0': [prob[0] for prob in y_proba],
+                                                        'pred_proba_class1': [prob[1] for prob in y_proba],})\
+                                .sort_values('thread_id')
 
-        logging.info("Here's your predictions:" )
-        logging.info(pprint.pformat(df_predictions.head()))
 
-        def compute_metrics(df):
-            # TODO check this
-            return ndcg.ndcg_at_k(df['y_pred'], 1)
+            def prova(df):
+                print df['pred_proba_class1'].max()
 
-        # TODO sort predictions based on confidence, then enforce only 1 best answer
 
-        # FIXME df_predictions['thread_id'] contains NaNs
-        # FIXME dask.async.ValueError: cannot reindex from a duplicate axis
-        ndcg_list = df_predictions.groupby('thread_id').apply(compute_metrics)
+            # post-processing: make sure only 1 predicted best-answer per thread!
+            if y_proba.any():
+                df_predictions.groupby('thread_id').apply(prova)
 
-        # save predictions
-        if args.draft:
-            prepare_folder(settings.OUTPUT_PATH_DIR_PREDICTIONS_DRAFT)
-            df_predictions.to_csv(settings.OUTPUT_PATH_DIR_PREDICTIONS_DRAFT + 'predictions.csv',
-                                            encoding=settings.ENCODING)
-        else:
+
+            logging.info("Here's your predictions:")
+            logging.info(pprint.pformat(df_predictions.head()))
+
+            """
+            def compute_metrics(df):
+                # TODO check this
+                return ndcg.ndcg_at_k(df['y_pred'], 1)
+
+            # TODO sort predictions based on confidence, then enforce only 1 best answer
+
+            # FIXME df_predictions['thread_id'] contains NaNs
+            # FIXME dask.async.ValueError: cannot reindex from a duplicate axis
+            ndcg_list = df_predictions.groupby('thread_id').apply(compute_metrics)
+
+            # save predictions
             prepare_folder(settings.OUTPUT_PATH_DIR_PREDICTIONS)
             df_predictions.to_csv(settings.OUTPUT_PATH_DIR_PREDICTIONS + 'predictions.csv',
-                                            encoding=settings.ENCODING)
+                                  encoding=settings.ENCODING)
 
-        logging.info('nDCG@1: {}'.format(ndcg_list.mean()))
+            logging.info('nDCG@1: {}'.format(ndcg_list.mean()))
+            """
 
-    logging.info('Training: completed.')
+    logging.info('Testing: completed.')
 
 if __name__ == "__main__":
     main()
