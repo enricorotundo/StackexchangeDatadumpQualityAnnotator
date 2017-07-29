@@ -193,8 +193,6 @@ def main():
                         settings.OUTPUT_PATH_DIR_PICKLED +
                         '{}_sklearn{}.pkl'.format(est_name, sklearn.__version__), compress=True)
 
-
-
     logging.info('Training: completed.')
 
 if __name__ == "__main__":
