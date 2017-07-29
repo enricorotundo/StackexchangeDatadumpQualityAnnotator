@@ -21,6 +21,7 @@ from sklearn.ensemble import *
 from sklearn.linear_model import *
 from sklearn.svm import *
 from sklearn.neighbors import *
+from sklearn.tree import *
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GroupShuffleSplit
 from dask.diagnostics import ProgressBar
@@ -81,10 +82,11 @@ def main():
         grid = [
             {
                 'est': [AdaBoostClassifier()],
+                'est__base_estimator': [DecisionTreeClassifier(),
+                                        RandomForestClassifier()],
                 'est__n_estimators': [10, 100, 500],
                 'est__learning_rate': [1, 2, 0.1],
                 'est__random_state': [settings.RND_SEED],
-                'est__n_jobs': [-1],
             },
             {
                 'est': [RandomForestClassifier()],
