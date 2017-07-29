@@ -23,5 +23,5 @@ source venv/bin/activate &&
 #python -m Analysis.feats_extract --n_partitions ${N_PARTITIONS} --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
 #python -m Analysis.split --n_partitions ${N_PARTITIONS} --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
 #python -m Analysis.preprocess --scaler robust --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
-#python -m Analysis.train --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME}
-python -m Analysis.test --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME}
+python -m Analysis.train --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME}
+#python -m Analysis.test --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME}
