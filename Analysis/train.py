@@ -22,6 +22,7 @@ from sklearn.linear_model import *
 from sklearn.svm import *
 from sklearn.neighbors import *
 from sklearn.tree import *
+from sklearn.neural_network import *
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GroupShuffleSplit
 from dask.diagnostics import ProgressBar
@@ -80,6 +81,12 @@ def main():
         pipeline = Pipeline([('est', RandomForestClassifier())])  # RF is just a placeholder
 
         grid = [
+            {
+                'est': [MLPClassifier()],
+                'est__hidden_layer_sizes': [(100,), (100, 100), (100, 100, 100)],
+                'est__learning_rate': ['adaptive'],
+                'est__random_state': settings.RND_SEED,
+            },
             {
                 'est': [AdaBoostClassifier()],
                 'est__base_estimator': [DecisionTreeClassifier(),

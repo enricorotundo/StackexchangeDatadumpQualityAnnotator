@@ -87,27 +87,33 @@ def main():
                                 .sort_values('thread_id')
 
 
-            def prova(df):
-                print df['pred_proba_class1'].max()
+            # this makes sense if there are at least 2 answers per thread
+            def feats_post_processing(df):
+                # take the answer with highest probability of being a best-answer
+                row_max_pred = df[df['pred_proba_class1'] == df['pred_proba_class1'].max()]
+                # elect that as best-answer
+                row_max_pred['y_pred'] = 1.0
+                # all the others are not best answers
+                other_rows = df[df['pred_proba_class1'] != df['pred_proba_class1'].max()]
+                # set them as not best-ones!
+                other_rows['y_pred'] = 0.0
 
+                return pd.concat([row_max_pred, other_rows])
 
-            # post-processing: make sure only 1 predicted best-answer per thread!
+            # post-processing: make sure 1 and only 1 predicted best-answer per thread!
             if y_proba.any():
-                df_predictions.groupby('thread_id').apply(prova)
+                df_predictions = df_predictions.groupby('thread_id').apply(feats_post_processing)
 
 
             logging.info("Here's your predictions:")
             logging.info(pprint.pformat(df_predictions.head()))
 
-            """
+
             def compute_metrics(df):
                 # TODO check this
                 return ndcg.ndcg_at_k(df['y_pred'], 1)
 
-            # TODO sort predictions based on confidence, then enforce only 1 best answer
 
-            # FIXME df_predictions['thread_id'] contains NaNs
-            # FIXME dask.async.ValueError: cannot reindex from a duplicate axis
             ndcg_list = df_predictions.groupby('thread_id').apply(compute_metrics)
 
             # save predictions
@@ -116,7 +122,7 @@ def main():
                                   encoding=settings.ENCODING)
 
             logging.info('nDCG@1: {}'.format(ndcg_list.mean()))
-            """
+
 
     logging.info('Testing: completed.')
 
