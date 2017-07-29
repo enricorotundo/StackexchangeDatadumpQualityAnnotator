@@ -100,7 +100,7 @@ def main():
                 'est__max_leaf_nodes': [None],
                 'est__min_impurity_split': [1e-7],
                 'est__bootstrap': [True, False],
-                'est__oob_score': [False, True],
+                'est__oob_score': [False],
                 'est__random_state': [settings.RND_SEED],
                 'est__warm_start': [False, True],
                 'est__verbose': [0],
