@@ -136,7 +136,7 @@ def main():
                                       {0: 1.0, 1: 10.0},
                                       {0: 1.0, 1: 2.0},
                                       ],
-                'est__max_iter': [50000],
+                'est__max_iter': [10000],
                 'est__cache_size': [30000],
                 'est__random_state': [settings.RND_SEED],
             },
