@@ -3,8 +3,8 @@
 N_PARTITIONS=32
 DB='travel'
 TASK_NAME='binaryBestAnswer'
-#SRC_FILE_NAME='threads_acceptedOnly_ansCountGte2.json'
-SRC_FILE_NAME='threads_acceptedOnly_all.json'
+SRC_FILE_NAME='threads_acceptedOnly_ansCountGte2.json'
+#SRC_FILE_NAME='threads_acceptedOnly_all.json'
 
 ### activate local virtualenv
 source venv/bin/activate &&
@@ -24,5 +24,5 @@ source venv/bin/activate &&
 #python -m Analysis.feats_extract --n_partitions ${N_PARTITIONS} --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
 #python -m Analysis.split --n_partitions ${N_PARTITIONS} --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
 #python -m Analysis.preprocess --scaler robust --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
-#python -m Analysis.train --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
+python -m Analysis.train --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME} &&
 python -m Analysis.test --db ${DB} --task_name ${TASK_NAME} --src_file_name ${SRC_FILE_NAME}
