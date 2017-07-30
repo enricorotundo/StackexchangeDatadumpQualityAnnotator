@@ -20,7 +20,6 @@ import numpy as np
 from dask.diagnostics import ProgressBar
 from sklearn.externals import joblib
 
-from Metrics import ndcg
 from Utils.settings import Settings
 from Utils.commons import prepare_folder
 

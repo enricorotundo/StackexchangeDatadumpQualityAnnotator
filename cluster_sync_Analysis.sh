@@ -4,4 +4,4 @@
 rsync -azP Analysis/ enricor@lisa.surfsara.nl:~/StackexchangeDatadumpQualityAnnotator/Analysis/
 
 # remote -> local
-rsync -azP enricor@lisa.surfsara.nl:~/StackexchangeDatadumpQualityAnnotator/Analysis/ Analysis/
+rsync -azP enricor@lisa.surfsara.nl:~/StackexchangeDatadumpQualityAnnotator/Analysis/Data/ Analysis/Data
