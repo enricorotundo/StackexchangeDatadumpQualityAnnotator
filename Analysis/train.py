@@ -85,7 +85,7 @@ def main():
                 'est': [MLPClassifier()],
                 'est__hidden_layer_sizes': [(100,), (100, 100), (100, 100, 100)],
                 'est__learning_rate': ['adaptive'],
-                'est__random_state': settings.RND_SEED,
+                'est__random_state': [settings.RND_SEED],
             },
             {
                 'est': [AdaBoostClassifier()],
