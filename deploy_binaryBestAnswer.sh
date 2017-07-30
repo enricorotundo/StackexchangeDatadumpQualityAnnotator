@@ -3,7 +3,7 @@
 N_PARTITIONS=16
 DB='travel'
 TASK_NAME='binaryBestAnswer'
-SRC_FILE_NAME='threads_acceptedOnly_ansCountGte4.json'
+SRC_FILE_NAME='threads_all_all.json'
 
 ### activate local virtualenv
 source venv/bin/activate &&

@@ -101,7 +101,7 @@ def main():
                 return pd.concat([row_max_pred, other_rows])
 
             # post-processing: make sure 1 and only 1 predicted best-answer per thread!
-            if y_proba.any():
+            if y_proba.any() and (args.src_file_name is not 'threads_all_all.json'):
                 df_predictions = df_predictions.groupby('thread_id').apply(feats_post_processing)
 
 
