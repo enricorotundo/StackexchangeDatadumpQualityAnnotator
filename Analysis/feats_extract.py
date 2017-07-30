@@ -11,6 +11,7 @@ Output datapoints are indexed by thread_id.
 import json
 import logging
 import argparse
+import gc
 
 import numpy as np
 from bs4 import BeautifulSoup
@@ -298,7 +299,7 @@ def main():
     dask.set_options(get=dask.multiprocessing.get)
 
     # use disk cache
-    cache = chest.Chest(path='cache', available_memory=62e9)  # 62 GB of RAM
+    cache = chest.Chest(path='cache', available_memory=30e9)  # 30 GB
     dask.set_options(cache=cache)
 
     # prepare network analysis data
@@ -354,6 +355,8 @@ def main():
 
             # make sure partitions take thread_id into account!
             df = df.set_index('thread_id')
+
+            gc.collect()
 
             # always use utf-8
             if args.draft:

@@ -87,7 +87,8 @@ def main():
                                                         'thread_id': groups_evaluation,
                                                         'post_id': df_evaluation['post_id'].compute(),
                                                         'pred_proba_class0': [prob[0] for prob in y_proba],
-                                                        'pred_proba_class1': [prob[1] for prob in y_proba]
+                                                        'pred_proba_class1': [prob[1] for prob in y_proba],
+                                                        'rnd_pred': np.random.randint(2, size=len(y_predictions))
                                                         })\
                                 .sort_values('thread_id')
             else:
@@ -96,7 +97,8 @@ def main():
                                                             'thread_id': groups_evaluation,
                                                             'post_id': df_evaluation['post_id'].compute(),
                                                             'pred_proba_class0': [np.NaN] * len(y_predictions),
-                                                            'pred_proba_class1': [np.NaN] * len(y_predictions)
+                                                            'pred_proba_class1': [np.NaN] * len(y_predictions),
+                                                            'rnd_pred': np.random.randint(2, size=len(y_predictions))
                                                             }) \
                     .sort_values('thread_id')
 
@@ -105,33 +107,26 @@ def main():
                 # take the answer with highest probability of being a best-answer
                 row_max_pred = df[df['pred_proba_class1'] == df['pred_proba_class1'].max()]
                 # elect that as best-answer
-                row_max_pred['y_pred'] = 1.0
+                row_max_pred['y_pred_post'] = 1.0
                 # all the others are not best answers
                 other_rows = df[df['pred_proba_class1'] != df['pred_proba_class1'].max()]
                 # set them as not best-ones!
-                other_rows['y_pred'] = 0.0
+                other_rows['y_pred_post'] = 0.0
 
                 return pd.concat([row_max_pred, other_rows])
 
             # post-processing: make sure 1 and only 1 predicted best-answer per thread!
-            if len(y_proba) > 0 and (args.src_file_name is not 'threads_all_all.json'):
-                df_predictions = df_predictions.groupby('thread_id').apply(feats_post_processing)
-
-            logging.info("Here's your predictions:")
-            logging.info(pprint.pformat(df_predictions.head()))
-
-            def compute_metrics(df):
-                # TODO check this
-                return ndcg.ndcg_at_k(df['y_pred'], 1)
-
-            ndcg_list = df_predictions.groupby('thread_id').apply(compute_metrics)
+            #if len(y_proba) > 0:
+            df_predictions = df_predictions.groupby('thread_id').apply(feats_post_processing)
 
             # save predictions
             prepare_folder(settings.OUTPUT_PATH_DIR_PREDICTIONS, clear=False)
             df_predictions.to_csv(settings.OUTPUT_PATH_DIR_PREDICTIONS + '{}_predictions.csv'.format(model_name),
                                   encoding=settings.ENCODING)
 
-            logging.info('nDCG@1: {}'.format(ndcg_list.mean()))
+            logging.info("Here's your predictions:")
+            logging.info(pprint.pformat(df_predictions.head()))
+
 
     logging.info('Testing: completed.')
 
