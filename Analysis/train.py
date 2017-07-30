@@ -119,10 +119,14 @@ def main():
                                       ],
             },
             {
-                'est': [LinearRegression()],
-                'est__fit_intercept': [False, True],
-                'est__normalize': [False, True],
-                'est__copy_X': [True],
+                'est': [LogisticRegression()],
+                'est__class_weight': [None,
+                                      'balanced',
+                                      {0: 1.0, 1: 10.0},
+                                      {0: 1.0, 1: 2.0},
+                                      ],
+                'est__max_iter': [1000],
+                'est__random_state': [settings.RND_SEED],
                 'est__n_jobs': [-1],
             },
             {

@@ -15,6 +15,7 @@ import dask
 import dask.multiprocessing
 import dask.dataframe as ddf
 import pandas as pd
+import numpy as np
 
 from dask.diagnostics import ProgressBar
 from sklearn.externals import joblib
@@ -68,6 +69,8 @@ def main():
 
         for file_path in glob.glob(settings.OUTPUT_PATH_DIR_PICKLED + '*.pkl'):
             clf = joblib.load(file_path)
+            model_name = clf.steps[0][1].__class__.__name__
+            logging.info('Estimator name: {}'.format(model_name))
 
             # predict on the test set
             y_predictions = clf.predict(X_evaluation)
@@ -78,14 +81,24 @@ def main():
                 y_proba = []
 
             # put all together
-            df_predictions = pd.DataFrame.from_records({'y_true': y_evaluation,
+            if len(y_proba) > 0:
+                df_predictions = pd.DataFrame.from_records({'y_true': y_evaluation,
                                                         'y_pred': y_predictions,
                                                         'thread_id': groups_evaluation,
                                                         'post_id': df_evaluation['post_id'].compute(),
                                                         'pred_proba_class0': [prob[0] for prob in y_proba],
-                                                        'pred_proba_class1': [prob[1] for prob in y_proba],})\
+                                                        'pred_proba_class1': [prob[1] for prob in y_proba]
+                                                        })\
                                 .sort_values('thread_id')
-
+            else:
+                df_predictions = pd.DataFrame.from_records({'y_true': y_evaluation,
+                                                            'y_pred': y_predictions,
+                                                            'thread_id': groups_evaluation,
+                                                            'post_id': df_evaluation['post_id'].compute(),
+                                                            'pred_proba_class0': [np.NaN] * len(y_predictions),
+                                                            'pred_proba_class1': [np.NaN] * len(y_predictions)
+                                                            }) \
+                    .sort_values('thread_id')
 
             # this makes sense if there are at least 2 answers per thread
             def feats_post_processing(df):
@@ -101,28 +114,24 @@ def main():
                 return pd.concat([row_max_pred, other_rows])
 
             # post-processing: make sure 1 and only 1 predicted best-answer per thread!
-            if y_proba.any() and (args.src_file_name is not 'threads_all_all.json'):
+            if len(y_proba) > 0 and (args.src_file_name is not 'threads_all_all.json'):
                 df_predictions = df_predictions.groupby('thread_id').apply(feats_post_processing)
-
 
             logging.info("Here's your predictions:")
             logging.info(pprint.pformat(df_predictions.head()))
-
 
             def compute_metrics(df):
                 # TODO check this
                 return ndcg.ndcg_at_k(df['y_pred'], 1)
 
-
             ndcg_list = df_predictions.groupby('thread_id').apply(compute_metrics)
 
             # save predictions
-            prepare_folder(settings.OUTPUT_PATH_DIR_PREDICTIONS)
-            df_predictions.to_csv(settings.OUTPUT_PATH_DIR_PREDICTIONS + 'predictions.csv',
+            prepare_folder(settings.OUTPUT_PATH_DIR_PREDICTIONS, clear=False)
+            df_predictions.to_csv(settings.OUTPUT_PATH_DIR_PREDICTIONS + '{}_predictions.csv'.format(model_name),
                                   encoding=settings.ENCODING)
 
             logging.info('nDCG@1: {}'.format(ndcg_list.mean()))
-
 
     logging.info('Testing: completed.')
 
