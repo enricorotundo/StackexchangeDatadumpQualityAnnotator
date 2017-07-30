@@ -109,7 +109,7 @@ def main():
                 'est__bootstrap': [True, False],
                 'est__oob_score': [False],
                 'est__random_state': [settings.RND_SEED],
-                'est__warm_start': [False, True],
+                'est__warm_start': [False],
                 'est__verbose': [0],
                 'est__n_jobs': [-1],
                 'est__class_weight': [None,
