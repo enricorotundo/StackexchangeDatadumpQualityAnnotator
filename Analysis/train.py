@@ -178,7 +178,7 @@ def main():
             logging.info("Training finished")
 
             # save results in CSV + pickled models
-            prepare_folder(settings.OUTPUT_PATH_DIR_RESULTS)
+            prepare_folder(settings.OUTPUT_PATH_DIR_RESULTS, clear=False)
             pd.DataFrame().from_dict(cv.cv_results_).to_csv(settings.OUTPUT_PATH_DIR_RESULTS +
                                                             'GridSearchCV_results_{}.csv'.format(est_name),
                                                             encoding=settings.ENCODING)
