@@ -1,4 +1,4 @@
-#PBS -lwalltime=02:30:00
+#PBS -lwalltime=06:00:00
 #PBS -lnodes=1:cores16
 
 echo "Starting the job" &&

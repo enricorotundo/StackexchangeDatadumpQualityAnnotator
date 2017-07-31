@@ -87,7 +87,6 @@ def main():
                                                         'post_id': df_evaluation['post_id'].compute(),
                                                         'pred_proba_class0': [prob[0] for prob in y_proba],
                                                         'pred_proba_class1': [prob[1] for prob in y_proba],
-                                                        'rnd_pred': np.random.randint(2, size=len(y_predictions))
                                                         })\
                                 .sort_values('thread_id')
             else:
@@ -97,7 +96,6 @@ def main():
                                                             'post_id': df_evaluation['post_id'].compute(),
                                                             'pred_proba_class0': [np.NaN] * len(y_predictions),
                                                             'pred_proba_class1': [np.NaN] * len(y_predictions),
-                                                            'rnd_pred': np.random.randint(2, size=len(y_predictions))
                                                             }) \
                     .sort_values('thread_id')
 
@@ -111,11 +109,9 @@ def main():
                 other_rows = df[df['pred_proba_class1'] != df['pred_proba_class1'].max()]
                 # set them as not best-ones!
                 other_rows['y_pred_post'] = 0.0
-
                 return pd.concat([row_max_pred, other_rows])
 
             # post-processing: make sure 1 and only 1 predicted best-answer per thread!
-            #if len(y_proba) > 0:
             df_predictions = df_predictions.groupby('thread_id').apply(feats_post_processing)
 
             # save predictions
